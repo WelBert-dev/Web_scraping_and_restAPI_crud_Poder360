@@ -1,0 +1,298 @@
+1o - Primeiras configurações de ambiente e add template base do Django em estrutura para docker-compose
+
+python3 -m venv venv [PASTA VAI SER IGNORADA PELO GIT]
+
+pip freeze
+
+pip install pip --upgrade
+
+pip install django
+
+pip freeze [3 items]
+
+
+sudo apt install python3-django
+
+mkdir djangoapp [Vai ser a raiz do projeto django]
+
+cd djangoapp 
+
+django-admin startproject project . [VAI ADD O TAMPLATE BASE DO DJANGO]
+
+cd ..
+
+python manage.py [vai ser]-> python3 djangoapp/manage.py runserver
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+2o - Add dependencias inicias do python para o docker e remove boilerplate do dbsqlite.
+
+
+rm -r ./djangoapp/project/db.sqlite
+
+cd ./djangoapp
+
+Cria o requirements.txt com:
+	Django>=4.2.1,<4.3
+	psycopg2-binary>=2.9.6,<2.10 [DRIVER DO POSTGRE]
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+3o - variáveis de ambiente dotenv-files
+
+mkdir dotenv-files && cd ./dotenv-files
+
+Cria o .env com as constantes que vão ser utilizadas no settings.py do Django.
+
+Cria a secretkey [NÃO VOU UTILIZAR]
+
+cd djangoapp/project 
+
+Ajustes no settings.py puxando as variáveis constantes do .env (JÁ PENSANDO NA ESTRUTURA DE DIR PARA DOCKER)
+
+Ajustes no urls.py deixando linear com o settings.py (JÁ PENSANDO NA ESTRUTURA DE DIR PARA DOCKER)
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+4o - configurações do dockerfile e scripts bash para ser executado no processo de montagem da imagem no container
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+5o - docker-compose 
+
+Cria o docker-compose.yml com as configurações para ambos os Dockerfiles
+
+primeira vez: sudo docker-compose up --build
+
+VAI DAR ERROS POR CONTA DA CONSTANTE POSTGRES_HOST DEFINIDA NO `.env` NO DIR dotenv-files
+	- Isso ocorre pois o host no docker não é localhost e sim o nome do container.
+	
+docker stop all: sudo docker stop $(sudo docker ps -a -q) ; sudo docker system prune -f ; sudo docker rm -vf $(sudo docker ps -aq) ;
+
+docker remove all: sudo docker stop $(sudo docker ps -a -q) ; sudo docker system prune -f ; sudo docker rm -vf $(sudo docker ps -aq) ; sudo docker rmi -f $(sudo docker images -aq) ;
+
+
+docker-compose up --build --force-recreate 
+
+
+OBS: TODA VEZ QUE ALTERAR OS ARQUIVOS DE CONFIGURAÇÃO DO DOCKER EM GERAL, DEVE-SE REMOVER CACHE E RE-BUILDAR COM
+docker-compose up --build --force-recreate
+
+	- APENAS QUANDO FOR ARQUIVOS DOCKER, PARA ARQUIVOS EM GERAL DE DESENVOLVIMENTO ELE JÁ REFLETE AS MUDANÇAS COPIANDO ELAS PARA O CONTAINER.
+	
+	
+
+ERRO DE PERMISSÃO AO BUILDAR, MESMO EXECUTANDO COM SUDO:
+
+
+
+
+	djangoapp    | Traceback (most recent call last):
+djangoapp    |   File "/djangoapp/manage.py", line 22, in <module>
+djangoapp    |     main()
+djangoapp    |   File "/djangoapp/manage.py", line 18, in main
+djangoapp    |     execute_from_command_line(sys.argv)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+djangoapp    |     utility.execute()
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/__init__.py", line 436, in execute
+djangoapp    |     self.fetch_command(subcommand).run_from_argv(self.argv)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/base.py", line 412, in run_from_argv
+djangoapp    |     self.execute(*args, **cmd_options)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/base.py", line 458, in execute
+djangoapp    |     output = self.handle(*args, **options)
+djangoapp    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/contrib/staticfiles/management/commands/collectstatic.py", line 209, in handle
+djangoapp    |     collected = self.collect()
+djangoapp    |                 ^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/contrib/staticfiles/management/commands/collectstatic.py", line 135, in collect
+djangoapp    |     handler(path, prefixed_path, storage)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/contrib/staticfiles/management/commands/collectstatic.py", line 378, in copy_file
+djangoapp    |     self.storage.save(prefixed_path, source_file)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/files/storage/base.py", line 38, in save
+djangoapp    |     name = self._save(name, content)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/files/storage/filesystem.py", line 87, in _save
+djangoapp    |     os.makedirs(directory, exist_ok=True)
+djangoapp    |   File "<frozen os>", line 215, in makedirs
+djangoapp    |   File "<frozen os>", line 225, in makedirs
+djangoapp    | PermissionError: [Errno 13] Permission denied: '/data/web/static/admin'
+djangoapp exited with code 1
+	
+
+
+
+DEBUGANDO PARA VERIFICAR AS PERMISSÕES:
+
+Step 10/13 : RUN ls -la /data/web &&     chown -R duser:duser /data/web/static &&     chmod -R 755 /data/web/static &&     ls -la /data/web
+ ---> Running in 0093d4e95f83
+total 16
+drwxr-xr-x    4 root     root          4096 Jan 10 19:44 .
+drwxr-xr-x    3 root     root          4096 Jan 10 19:44 ..
+drwxr-xr-x    2 duser    duser         4096 Jan 10 19:44 media
+drwxr-xr-x    2 duser    duser         4096 Jan 10 19:44 static
+total 24
+drwxr-xr-x    1 root     root          4096 Jan 10 19:44 .
+drwxr-xr-x    1 root     root          4096 Jan 10 19:44 ..
+drwxr-xr-x    2 duser    duser         4096 Jan 10 19:44 media
+drwxr-xr-x    1 duser    duser         4096 Jan 10 19:44 static
+
+
+
+SOLUÇÃO: Add flag `--dry-run` no arquivo `./scripts/commands.sh`, ficando da seguinte forma:
+
+	python manage.py collectstatic --dry-run --noinput
+	
+
+docker stop $(sudo docker ps -a -q) ; sudo docker system prune -f ; sudo docker rm -vf $(sudo docker ps -aq) ;
+
+sudo docker stop $(sudo docker ps -a -q) ; sudo docker system prune -f ; sudo docker rm -vf $(sudo docker ps -aq) ; sudo docker rmi -f $(sudo docker images -aq) ;
+
+sudo rm -r ./data
+
+docker-compose up --build --force-recreate 
+
+OUTPUT AGORA:
+
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/core.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/autocomplete.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/inlines.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/prepopulate_init.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/jquery.init.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/filters.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/prepopulate.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/theme.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/nav_sidebar.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/change_form.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/urlify.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/calendar.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/collapse.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/SelectBox.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/cancel.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/actions.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/SelectFilter2.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/popup_response.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/select2.full.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/select2.full.min.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/LICENSE.md'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/fa.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/it.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/sl.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ar.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ka.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/pl.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/tr.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/hu.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ca.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/sq.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/bg.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/km.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/et.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/de.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/fr.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/tk.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ja.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/cs.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/da.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/hsb.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/sr.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/hi.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/mk.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/zh-CN.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/sr-Cyrl.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/uk.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/id.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/pt-BR.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/el.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/bn.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/en.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/he.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/nl.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/af.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/is.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ru.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ms.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ps.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/az.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ro.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ne.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/nb.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/hy.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/zh-TW.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/dsb.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/bs.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/vi.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/sk.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/fi.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/es.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/th.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/lt.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/eu.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/ko.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/pt.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/lv.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/hr.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/sv.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/select2/i18n/gl.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/xregexp/xregexp.min.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/xregexp/LICENSE.txt'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/xregexp/xregexp.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/jquery/LICENSE.txt'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/jquery/jquery.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/vendor/jquery/jquery.min.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/admin/RelatedObjectLookups.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/js/admin/DateTimeShortcuts.js'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/selector-icons.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-alert.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-clock.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-changelink.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-calendar.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/tooltag-add.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/README.txt'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/calendar-icons.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-no.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/tooltag-arrowright.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-unknown-alt.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/search.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-deletelink.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-yes.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-viewlink.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-unknown.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/inline-delete.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/LICENSE'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/sorting-icons.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/icon-addlink.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/gis/move_vertex_off.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/img/gis/move_vertex_on.svg'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/dashboard.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/rtl.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/dark_mode.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/widgets.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/nav_sidebar.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/login.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/autocomplete.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/responsive_rtl.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/base.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/responsive.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/forms.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/changelists.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/vendor/select2/LICENSE-SELECT2.md'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/vendor/select2/select2.css'
+djangoapp    | Pretending to copy '/venv/lib/python3.11/site-packages/django/contrib/admin/static/admin/css/vendor/select2/select2.min.css'
+djangoapp    | 
+djangoapp    | 125 static files copied to '/data/web/static'.
+djangoapp    | No changes detected
+
+
+
+
+
+
+
+
+
+
+
