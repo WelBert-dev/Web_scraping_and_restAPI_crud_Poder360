@@ -289,6 +289,73 @@ djangoapp    | No changes detected
 
 
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+6o - Primeira rota com retorno view (HELLO WORLD)
+
+
+docker-compose run djangoapp python manage.py startapp hello_world
+
+
+VAI CRIAR O TEMPLATE BASE PARA A CRIAÇÃO DE ROTAS:
+
+
+mkdir ./djangoapp/hello_world/templates/hello_world
+
+cd ./djangoapp/hello_world/templates/hello_world
+
+Cria o index.html desta rota com boilerplate `!`
+
+
+cd ./djangoapp/hello_world/
+
+Editar `views.py` definindo a função que retorna o ./djangoapp/hello_world/templates/hello_world/index.html
+
+Copiar o `./djangoapp/project/urls.py
+
+Remove boilerplates e deixa clean.
+
+Editar `./djangoapp/project/urls.py` e add a rota do novo template hello_world
+
+http://127.0.0.1:8000/
+
+ERROR POIS FALTA REGISTRAR ESSE TEMPLATE NO `./djangoapp/project/seetings.py` com informações geradas no `./djangoapp/hello_world/apps.py`: 
+
+	TemplateDoesNotExist at /
+
+
+
+DA SEGUINTE FORMA: `./djangoapp/project/seetings.py`:
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.staticfiles',
+    'hello_world',                      <---- AQUIII
+]
+
+
+CASO TIVESSE ALGUM MODEL, para mapear essa entidade e refletir no banco (Hibernate):
+
+docker-compose run djangoapp python manage.py makemigrations
+
+docker-compose run djangoapp python manage.py migrate
+
+docker-compose run djangoapp python manage.py collectstatic
+
+
+OBS: TODA VEZ QUE EXECUTAR O docker-compose up JÁ SERÁ EXECUTADO TUDO ISSO, POIS ESTA DEFINIDO EM `./scripts/commands.sh`
+
+
+
+
+
+
+
 
 
 
