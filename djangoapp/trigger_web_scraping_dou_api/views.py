@@ -18,11 +18,13 @@ class ScraperViewSet(APIView):
             
             return Response(self.handle_URL_empty_params())
 
+
         # Se ?section= foi passado no URL query string param
         elif URLQueryStringParameterValidator.is_secaoURLQueryString_unic(secaoURLQueryString, dataURLQueryString) and \
              URLQueryStringParameterValidator.is_secaoURLQueryString_valid(secaoURLQueryString):
                  
             return Response(self.handle_secaoURLQueryString_single_param(secaoURLQueryString))
+        
         
         # Se ?data= foi passado no URL query string param
         elif (URLQueryStringParameterValidator.is_dataURLQueryString_unic(secaoURLQueryString, dataURLQueryString) and \
@@ -30,12 +32,19 @@ class ScraperViewSet(APIView):
                  
             return Response(self.handle_dataURLQueryString_single_param(dataURLQueryString))
         
-
-        return Response("Operação inválida, mais informações no ./validators_log.txt")
-
-
-
+        
+        # Se ?section= e ?data= foi passado no URL query string param
+        elif (URLQueryStringParameterValidator.is_all_params(secaoURLQueryString, dataURLQueryString) and \
+              URLQueryStringParameterValidator.is_all_params_valid(secaoURLQueryString, dataURLQueryString)):
+                 
+            return Response(self.handle_all_params(secaoURLQueryString, dataURLQueryString))
+        
+        
+        return Response("Operação inválida, mais informações no /djangoapp/validators_log.txt")
     
+    
+    
+        
     # --------------------- [ Handlers área ] ---------------------
 
     # Varre tudo da home do https://www.in.gov.br/leiturajornal
@@ -44,7 +53,6 @@ class ScraperViewSet(APIView):
        
         return ScraperUtil.run_generic_scraper(DOU_BASE_URL)
     
-
 
     # Varre os DOU da seção mencionada no query string param, na data atual
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`
@@ -59,6 +67,12 @@ class ScraperViewSet(APIView):
         
         return ScraperUtil.run_scraper_with_date(DOU_BASE_URL, dataURLQueryString)
     
+    
+    # Varre os DOU da seção e data mencionada no query string param
+    # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`&data=`DD-MM-AAAA`
+    def handle_all_params(self, secaoURLQueryString, dataURLQueryString):
+        
+        return ScraperUtil.run_scraper_with_all_params(DOU_BASE_URL, secaoURLQueryString, dataURLQueryString)
 
 
 

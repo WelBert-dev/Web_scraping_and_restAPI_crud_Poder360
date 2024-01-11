@@ -42,15 +42,28 @@ class URLQueryStringParameterValidator:
         
         return (dataURLQueryString is not None and secaoURLQueryString is None)
     
+    
     @staticmethod
     def is_dataURLQueryString_valid(dataURLQueryString : str):
         
         return DateValidator.execute(dataURLQueryString)
-
-
-
-
-
+    
+    
+    @staticmethod
+    def is_all_params(secaoURLQueryString : str, dataURLQueryString : str):
+        
+        return ( secaoURLQueryString is not None and dataURLQueryString is not None )
+    
+    
+    @staticmethod
+    def is_all_params_valid(secaoURLQueryString : str, dataURLQueryString : str):
+        
+        return URLQueryStringParameterValidator.is_secaoURLQueryString_valid(secaoURLQueryString) and \
+               URLQueryStringParameterValidator.is_dataURLQueryString_valid(dataURLQueryString)
+               
+               
+               
+               
 class DateValidator:
     
     logger = logging.getLogger("DateValidator")
@@ -84,5 +97,12 @@ class DateValidator:
 
     @staticmethod
     def is_not_future_date(date):
+        
         current_datetime = datetime.now()
-        return date <= current_datetime
+        
+        result = date <= current_datetime
+        
+        if not result:
+            DateValidator.logger.error('is_not_future_date: date value is not valid, '+ str(date) +' ainda não chegou ooooh!')
+        
+        return result

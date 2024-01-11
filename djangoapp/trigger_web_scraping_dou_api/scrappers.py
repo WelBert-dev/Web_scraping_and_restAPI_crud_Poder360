@@ -72,6 +72,17 @@ class ScraperUtil:
         url_param = url_param + "?data=" + dataURLQueryString_param
         
         return ScraperUtil.run_generic_scraper(url_param)
+    
+    
+    
+    @staticmethod
+    def run_scraper_with_all_params(url_param: str, secaoURLQueryString_param, dataURLQueryString_param):
+        
+        # Varre todos os DOU da data mencionada no query string param
+            
+        url_param = url_param + "?data=" + dataURLQueryString_param + "&secao=" + secaoURLQueryString_param
+        
+        return ScraperUtil.run_generic_scraper(url_param)
             
 
 
