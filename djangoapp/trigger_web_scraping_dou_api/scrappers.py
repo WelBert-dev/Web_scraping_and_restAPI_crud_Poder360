@@ -61,6 +61,17 @@ class ScraperUtil:
         url_param = url_param + "?data=" + date_sp_now_formated_db_pattern + "&secao=" + secaoURLQueryString_param
         
         return ScraperUtil.run_generic_scraper(url_param)
+    
+    
+    
+    @staticmethod
+    def run_scraper_with_date(url_param: str, dataURLQueryString_param):
+        
+        # Varre todos os DOU da data mencionada no query string param
+            
+        url_param = url_param + "?data=" + dataURLQueryString_param
+        
+        return ScraperUtil.run_generic_scraper(url_param)
             
 
 

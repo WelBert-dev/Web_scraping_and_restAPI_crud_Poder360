@@ -22,7 +22,13 @@ class ScraperViewSet(APIView):
         elif URLQueryStringParameterValidator.is_secaoURLQueryString_unic(secaoURLQueryString, dataURLQueryString) and \
              URLQueryStringParameterValidator.is_secaoURLQueryString_valid(secaoURLQueryString):
                  
-            return Response(self.handle_secaoURLQueryString_param_notEmpty(secaoURLQueryString))
+            return Response(self.handle_secaoURLQueryString_single_param(secaoURLQueryString))
+        
+        # Se ?data= foi passado no URL query string param
+        elif (URLQueryStringParameterValidator.is_dataURLQueryString_unic(secaoURLQueryString, dataURLQueryString) and \
+              URLQueryStringParameterValidator.is_dataURLQueryString_valid(dataURLQueryString)):
+                 
+            return Response(self.handle_dataURLQueryString_single_param(dataURLQueryString))
         
 
         return Response("Nenhum jornal encontrado! ;-;")
@@ -42,9 +48,16 @@ class ScraperViewSet(APIView):
 
     # Varre os DOU da seção mencionada no query string param, na data atual
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`
-    def handle_secaoURLQueryString_param_notEmpty(self, secaoURLQueryString_param):
+    def handle_secaoURLQueryString_single_param(self, secaoURLQueryString_param):
         
         return ScraperUtil.run_scraper_with_section(DOU_BASE_URL, secaoURLQueryString_param)
+    
+    
+    # Varre os DOU da seção mencionada no query string param, na data atual
+    # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`
+    def handle_dataURLQueryString_single_param(self, dataURLQueryString):
+        
+        return ScraperUtil.run_scraper_with_date(DOU_BASE_URL, dataURLQueryString)
     
 
 
