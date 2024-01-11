@@ -1,11 +1,23 @@
 from datetime import datetime, timedelta
 import pytz
 
+import os
+import logging
+
+
+log_path = os.path.join(os.environ.get('LOG_DIR', '.'), 'validators_log.txt')
+
+# Configuração do logger com um formato mais detalhado
+logging.basicConfig(filename=log_path, level=logging.ERROR,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 class URLQueryStringParameterValidator:
+    
+    logger = logging.getLogger("URLQueryStringParameterValidator")
     
     @staticmethod
     def is_empty_params(secaoURLQueryString : str, dataURLQueryString : str):
-        
+
         return ( secaoURLQueryString is None and dataURLQueryString is None )
     
     @staticmethod
@@ -16,10 +28,14 @@ class URLQueryStringParameterValidator:
     @staticmethod
     def is_secaoURLQueryString_valid(secaoURLQueryString : str):
         
-         return ( (secaoURLQueryString != "") and \
-                 (secaoURLQueryString == "do1" or \
-                  secaoURLQueryString == "do2" or \
-                  secaoURLQueryString == "do3") )
+        valid_values = {"do1", "do2", "do3"}
+        result = secaoURLQueryString != "" and secaoURLQueryString in valid_values
+        
+        if not result:
+            URLQueryStringParameterValidator.logger.error('is_secaoURLQueryString_valid: Invalid secaoURLQueryString pois não existe o dou ' + secaoURLQueryString + '!')
+        
+        return result
+    
     
     @staticmethod
     def is_dataURLQueryString_unic(secaoURLQueryString : str, dataURLQueryString : str):
@@ -37,6 +53,8 @@ class URLQueryStringParameterValidator:
 
 class DateValidator:
     
+    logger = logging.getLogger("DateValidator")
+    
     @staticmethod
     def execute(date_str):
         try:
@@ -51,12 +69,17 @@ class DateValidator:
     @staticmethod
     def is_valid_year(date):
         try:
-            # Verificar se o ano está no intervalo razoável (por exemplo, 1900 a 2100)
-            if 1900 <= date.year <= 2100:
-                return True
-            else:
-                return False
+            result = 1900 <= date.year <= 2100
+            if not result:
+            
+                DateValidator.logger.error('is_valid_year: Invalid year pois o ano da data ' + date + ' não está em um intervalo consistente!')
+                
+            return result
+        
         except ValueError:
+            
+            DateValidator.logger.error('is_valid_year: Year value is not valid, e lançou um exception no processo!')
+            
             return False
 
     @staticmethod

@@ -31,7 +31,7 @@ class ScraperViewSet(APIView):
             return Response(self.handle_dataURLQueryString_single_param(dataURLQueryString))
         
 
-        return Response("Nenhum jornal encontrado! ;-;")
+        return Response("Operação inválida, mais informações no ./validators_log.txt")
 
 
 
