@@ -8,29 +8,7 @@ import pytz
 
 
 class ScraperUtil:
-    @staticmethod
-    def run_scraper_with_section(url_param: str, secaoURLQueryString_param=None):
-        
-        # Todos argumentos presentes, Varre os DOU da seção mencionada no query string param, na data atual
-        if secaoURLQueryString_param is not None:
-
-            date_utc_now = datetime.utcnow()
-            saopaulo_tz = pytz.timezone('America/Sao_Paulo')
-            date_sp_now = date_utc_now.replace(tzinfo=pytz.utc).astimezone(saopaulo_tz)
-            date_sp_now_formated_db_pattern = date_sp_now.strftime("%d-%m-%Y")
-            
-            url_param = url_param + "?data=" + date_sp_now_formated_db_pattern + "&secao=" + secaoURLQueryString_param
-            
-            return ScraperUtil.run_generic_scraper(url_param)
-        
-        # Apenas url_param presente, Varre tudo da home do https://www.in.gov.br/leiturajornal
-        else:
-            
-            return ScraperUtil.run_generic_scraper(url_param)
-            
     
-
-
     @staticmethod
     def run_generic_scraper(url_param: str):
 
@@ -68,6 +46,23 @@ class ScraperUtil:
             
             return "Falha na requisição. Código de status: " + response.status_code
     
+    
+    
+    @staticmethod
+    def run_scraper_with_section(url_param: str, secaoURLQueryString_param):
+        
+        # Todos argumentos presentes, Varre os DOU da seção mencionada no query string param, na data atual
+
+        date_utc_now = datetime.utcnow()
+        saopaulo_tz = pytz.timezone('America/Sao_Paulo')
+        date_sp_now = date_utc_now.replace(tzinfo=pytz.utc).astimezone(saopaulo_tz)
+        date_sp_now_formated_db_pattern = date_sp_now.strftime("%d-%m-%Y")
+        
+        url_param = url_param + "?data=" + date_sp_now_formated_db_pattern + "&secao=" + secaoURLQueryString_param
+        
+        return ScraperUtil.run_generic_scraper(url_param)
+            
+
 
     @staticmethod
     def scrape_previous_day():
@@ -85,3 +80,4 @@ class ScraperUtil:
         # return ScraperUtil.run_generic_scraper(new_url)
         
         return "Nenhum jornal postado neste dia!\nPegar dias anteriores recursivamente em desenvolvimento..."
+    

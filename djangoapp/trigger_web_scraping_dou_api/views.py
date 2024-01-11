@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .scrappers import ScraperUtil
+from .validators import URLQueryStringParameterValidator
 
 import os
 
@@ -11,13 +12,18 @@ class ScraperViewSet(APIView):
         secaoURLQueryString = request.GET.get('secao')
         dataURLQueryString = request.GET.get('data')
 
+
         # Se não existem parâmetros
-        if secaoURLQueryString is None and dataURLQueryString is None:
+        if URLQueryStringParameterValidator.is_empty_params(secaoURLQueryString, dataURLQueryString):
+            
             return Response(self.handle_URL_empty_params())
 
         # Se ?section= foi passado no URL query string param
-        elif secaoURLQueryString == "do1" or secaoURLQueryString == "do2" or secaoURLQueryString == "do3":
+        elif URLQueryStringParameterValidator.is_secaoURLQueryString_unic(secaoURLQueryString, dataURLQueryString) and \
+             URLQueryStringParameterValidator.is_secaoURLQueryString_valid(secaoURLQueryString):
+                 
             return Response(self.handle_secaoURLQueryString_param_notEmpty(secaoURLQueryString))
+        
 
         return Response("Nenhum jornal encontrado! ;-;")
 
