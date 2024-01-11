@@ -430,9 +430,45 @@ SOLUÇÃO: Add `rest_framework` em `./djangoapp/project/settings` (Mesmo não se
 
 
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+8 - Criando a rest API separada apenas para os gatilhos no scraping e alimentação deles no db.
 
 
+ENDPOINTS Á DESENVOLVER:
+	
+	Varre tudo da home do https://www.in.gov.br/leiturajornal [SEM SALVAR EM BANCO, Para salvar &saveInDB=true]
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
+	
+	
+	
+	Varre os DOU da seção mencionada na data atual [SEM SALVAR EM BANCO, Para salvar &saveInDB=true]
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`
+	
+	
+	
+	Varre os DOU da seção mencionada e na data mencionada [SEM SALVAR EM BANCO, Para salvar &saveInDB=true]
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`
+	
+	
 
+docker-compose run djangoapp python manage.py startapp trigger_web_scraping_dou_api
+
+
+Cria o primeiro Endpoint que faz a raspagem (PORÉM AINDA NÃO SALVA EM BANCO)
+
+	Varre tudo da home do https://www.in.gov.br/leiturajornal [SEM SALVAR EM BANCO, Para salvar &saveInDB=true]
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
+
+
+- OBS: Retorno sem paginação por enquanto.
+
+
+Retornando apenas o item JsonArray do json <script id='params'>, pois o json completo é muito poluído e dificil de entender quais membros são relevantes, como a ideia é após a análise concatenação item a item com `https://www.in.gov.br/en/web/dou/-/` + `jsonArray['urlTitle']`, então estou manipulando apenas o objeto interno jsonArray{...}   
 
 
 

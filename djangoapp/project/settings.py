@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'hello_world',
     'hello_world_api',
+    'trigger_web_scraping_dou_api',
     'rest_framework',
 ]
 

@@ -1,3 +1,7 @@
 Django>=4.2.1,<4.3
 psycopg2-binary>=2.9.6,<2.10
 djangorestframework
+
+urllib3==1.26.7
+beautifulsoup4
+cfscrape

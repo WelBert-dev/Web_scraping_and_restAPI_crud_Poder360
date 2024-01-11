@@ -21,7 +21,9 @@ from django.contrib import admin
 from django.urls import include, path
 
 from rest_framework import routers
+
 from hello_world_api.views import JsonArrayOfDOUViewSet
+from trigger_web_scraping_dou_api.views import ScraperViewSet
 
 
 router = routers.DefaultRouter()
@@ -31,6 +33,7 @@ urlpatterns = [
     path('', include('hello_world.urls')),
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('trigger_web_scraping_dou_api/', ScraperViewSet.as_view(), name='scraperviewset'),
 ]
 
 # Para poder ver os arquivos de media em time real quando o cliente enviar post
