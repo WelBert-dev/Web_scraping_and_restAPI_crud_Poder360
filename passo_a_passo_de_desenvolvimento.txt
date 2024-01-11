@@ -471,7 +471,6 @@ Cria o primeiro Endpoint que faz a raspagem (PORÉM AINDA NÃO SALVA EM BANCO)
 Retornando apenas o item JsonArray do json <script id='params'>, pois o json completo é muito poluído e dificil de entender quais membros são relevantes, como a ideia é após a análise concatenação item a item com `https://www.in.gov.br/en/web/dou/-/` + `jsonArray['urlTitle']`, então estou manipulando apenas o objeto interno jsonArray{...}   
 
 
-
 -------------------------------------------------------------------------------------------------------------------------------
 
 9 - Criando endpoint GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`
@@ -483,10 +482,29 @@ Varre os DOU da seção mencionada no query string param, na data atual
 
 -------------------------------------------------------------------------------------------------------------------------------
 
+10o - ScraperAPI Refactoring no views.py: Extraí lógicas de validações e cria classe especializada URLQueryStringParameterValidator no pacote validators.py
 
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+11o - ScraperAPI: Add endpoint GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`
+- Obs1: Ainda não salvando em banco, vou implementar uma flag `?saveInDB=true` depois.
+
+- Obs2: Retorno sem paginação por enquanto.
+
+- Já fazendo algumas validações no validator especializado.
 
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+12o - ScraperAPI: Add logs em arquivo para os validators, não é boarat pica ficar expondo detalhes de erros para o mundo externo quando não existe autenticação e autorização.
 
 
+-------------------------------------------------------------------------------------------------------------------------------
 
+13o - ScraperAPI: Add endpoint GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1|do2|do3&data=DD-MM-AAAA`
+- Obs1: Ainda não salvando em banco, vou implementar uma flag `?saveInDB=true` depois.
+
+- Obs2: Retorno sem paginação por enquanto.
+
+- Já fazendo algumas validações no validator especializado, e logger nos erros.
