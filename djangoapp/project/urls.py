@@ -20,9 +20,17 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from rest_framework import routers
+from hello_world_api.views import JsonArrayOfDOUViewSet
+
+
+router = routers.DefaultRouter()
+router.register(r'jsonarrayofdou', JsonArrayOfDOUViewSet)
+
 urlpatterns = [
     path('', include('hello_world.urls')),
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),
 ]
 
 # Para poder ver os arquivos de media em time real quando o cliente enviar post

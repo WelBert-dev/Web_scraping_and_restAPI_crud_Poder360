@@ -351,6 +351,82 @@ docker-compose run djangoapp python manage.py collectstatic
 OBS: TODA VEZ QUE EXECUTAR O docker-compose up JÁ SERÁ EXECUTADO TUDO ISSO, POIS ESTA DEFINIDO EM `./scripts/commands.sh`
 
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+7o - Primeira rota com retorno Json (HELLO WORLD_API) e Serialização das entidades
+
+
+docker-compose run djangoapp python manage.py startapp hello_world_api 
+
+
+Ajusta os boirlerplates para corresponder a uma Rest API com retornos Json
+
+
+ERROR SEM MUITA INFORMAÇÃO UTIL PARA TRACKING, MAS RESOLVI:
+
+
+djangoapp    | Internal Server Error: /api/jsonarrayofdou/
+djangoapp    | Traceback (most recent call last):
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+djangoapp    |     response = get_response(request)
+djangoapp    |                ^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 220, in _get_response
+djangoapp    |     response = response.render()
+djangoapp    |                ^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/template/response.py", line 114, in render
+djangoapp    |     self.content = self.rendered_content
+djangoapp    |                    ^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/rest_framework/response.py", line 70, in rendered_content
+djangoapp    |     ret = renderer.render(self.data, accepted_media_type, context)
+djangoapp    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/rest_framework/renderers.py", line 722, in render
+djangoapp    |     template = loader.get_template(self.template)
+djangoapp    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/template/loader.py", line 19, in get_template
+djangoapp    |     raise TemplateDoesNotExist(template_name, chain=chain)
+djangoapp    | django.template.exceptions.TemplateDoesNotExist: rest_framework/api.html
+djangoapp    | [10/Jan/2024 20:52:27] "GET /api/jsonarrayofdou/ HTTP/1.1" 500 74030
+djangoapp    | Not Found: /api/j
+djangoapp    | [10/Jan/2024 20:52:35] "GET /api/j HTTP/1.1" 404 3641
+djangoapp    | Internal Server Error: /api/
+djangoapp    | Traceback (most recent call last):
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+djangoapp    |     response = get_response(request)
+djangoapp    |                ^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 220, in _get_response
+djangoapp    |     response = response.render()
+djangoapp    |                ^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/template/response.py", line 114, in render
+djangoapp    |     self.content = self.rendered_content
+djangoapp    |                    ^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/rest_framework/response.py", line 70, in rendered_content
+djangoapp    |     ret = renderer.render(self.data, accepted_media_type, context)
+djangoapp    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/rest_framework/renderers.py", line 722, in render
+djangoapp    |     template = loader.get_template(self.template)
+djangoapp    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/template/loader.py", line 19, in get_template
+djangoapp    |     raise TemplateDoesNotExist(template_name, chain=chain)
+djangoapp    | django.template.exceptions.TemplateDoesNotExist: rest_framework/api.html
+djangoapp    | [10/Jan/2024 20:52:37] "GET /api/ HTTP/1.1" 500 73956
+djangoapp    | Not Found: /favicon.ico
+djangoapp    | [10/Jan/2024 20:52:38] "GET /favicon.ico HTTP/1.1" 404 2502
+
+
+SOLUÇÃO: Add `rest_framework` em `./djangoapp/project/settings` (Mesmo não sendo o nome do projeto "hello_world_api" deve colocar essa flag)
+
+
+	INSTALLED_APPS = [
+	    'django.contrib.admin',
+	    'django.contrib.auth',
+	    'django.contrib.contenttypes',
+	    'django.contrib.sessions',
+	    'django.contrib.messages',
+	    'django.contrib.staticfiles',
+	    'hello_world',
+	    'hello_world_api',
+	    'rest_framework',
+	]
 
 
 
