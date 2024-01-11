@@ -53,7 +53,7 @@ class ScraperViewSet(APIView):
         return ScraperUtil.run_scraper_with_section(DOU_BASE_URL, secaoURLQueryString_param)
     
     
-    # Varre os DOU da seção mencionada no query string param, na data atual
+    # Varre todos os DOU da data mencionada no query string param
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`
     def handle_dataURLQueryString_single_param(self, dataURLQueryString):
         
