@@ -472,6 +472,21 @@ Retornando apenas o item JsonArray do json <script id='params'>, pois o json com
 
 
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+9 - Criando endpoint GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`
+
+Varre os DOU da seção mencionada no query string param, na data atual
+
+- OBS: Retorno sem paginação por enquanto.
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
 
 
 
