@@ -516,19 +516,24 @@ Varre os DOU da seção mencionada no query string param, na data atual
 
 	Varre tudo da home do https://www.in.gov.br/leiturajornal         <--------- PARA ESTE PRIMEIRO
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=true 
 	
 	
 	
 	Varre os DOU da seção mencionada na data atual
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`?saveInDB=true
+	
+	
+	Varre os DOU da data mencionada                             
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`?saveInDB=true
 	
 	
 	
 	Varre os DOU da seção mencionada e na data mencionada
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`?saveInDB=true
 
 
 Modificações em geral nas funções para não fazer duplicatas.
@@ -881,19 +886,24 @@ PRONTO, SÓ ESTÁ SALVANDO A DIFERENÇA ENTRE OS DOIS CONJUNTOS.
 
 	Varre tudo da home do https://www.in.gov.br/leiturajornal         <--------- PRONTO NA TAREFA ANTERIOR
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=true
 	
 	
 	
 	Varre os DOU da seção mencionada na data atual                    <--------- PARA ESTE AGORA
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`?saveInDB=true
+	
+	
+	Varre os DOU da data mencionada                            
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`?saveInDB=true
 	
 	
 	
 	Varre os DOU da seção mencionada e na data mencionada
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`?saveInDB=true
 
 
 Modificações em geral nas funções para não fazer duplicatas, pois a parte maior deste desenvolvimento foi feito na tarefa do primeiro endpoint, agora é só ir replicando nas assinaturas de outros endpoints o parâmetro `saveInDBFlagURLQueryString : bool`.
@@ -993,7 +1003,7 @@ APAGA O ULTIMO REGISTRO
 	(1 row)
 
 	
-AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=true
+AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2&saveInDBFlag=true
 
 	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
 	 count 
@@ -1053,6 +1063,11 @@ AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_d
 	(1 row)
 	
 	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'edital-n-1-anvisa-de-11-de-janeiro-de-2024-537292877';                   <------ PARA GARANTIR, DEVE DELETAR MESMO ELEMENTO DE ANTES SEM ERROR
+
+
+PRONTO, SÓ ESTÁ SALVANDO A DIFERENÇA ENTRE OS DOIS CONJUNTOS.
+
+
 
 
 
