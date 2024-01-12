@@ -875,3 +875,184 @@ AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_d
 PRONTO, SÓ ESTÁ SALVANDO A DIFERENÇA ENTRE OS DOIS CONJUNTOS.
 
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+17o - ScraperAPI: Replicando a implementação `?saveInDB=true` para cada um dos enpoints:
+
+	Varre tudo da home do https://www.in.gov.br/leiturajornal         <--------- PRONTO NA TAREFA ANTERIOR
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
+	
+	
+	
+	Varre os DOU da seção mencionada na data atual                    <--------- PARA ESTE AGORA
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`
+	
+	
+	
+	Varre os DOU da seção mencionada e na data mencionada
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`
+
+
+Modificações em geral nas funções para não fazer duplicatas, pois a parte maior deste desenvolvimento foi feito na tarefa do primeiro endpoint, agora é só ir replicando nas assinaturas de outros endpoints o parâmetro `saveInDBFlagURLQueryString : bool`.
+
+Já vai refletir a funcionalidade de salvar para todos, pois todos chamam a mesma função genérica que recebe a URL e faz a requisição, e nela passamos essa flag para salvar ou não. (Já garantindo DISTINCT).
+
+
+TESTANDO DOU1: 
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+
+	EXECUTA O TRIGGER: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=true
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   239
+	(1 row)
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/              <------ CONSULTA O BANCO
+	
+		[... "count": 239, ...]
+	
+	http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2               <------ CONSULTA SEM SALVAR NO BANCO
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/    <------ CONSULTA O BANCO DENOVO, NÃO DEVE ALTERAR
+	
+		[... "count": 239, ...]
+		
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;     <------ MESMA COISA QUE O DE CIMA
+	 count 
+	-------
+	   239
+	(1 row)
+	
+
+APAGA O ULTIMO REGISTRO
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'retificacao-537039836';
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   238
+	(1 row)
+
+	
+AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=true
+
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   239
+	(1 row)
+	
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'retificacao-537039836';                   <------ PARA GARANTIR, DEVE DELETAR MESMO ELEMENTO DE ANTES SEM ERROR
+	
+	
+	
+TESTANDO DOU2: 
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+
+	EXECUTA O TRIGGER: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2&saveInDBFlag=true
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   792
+	(1 row)
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/              <------ CONSULTA O BANCO
+	
+		[... "count": 792, ...]
+	
+	http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2               <------ CONSULTA SEM SALVAR NO BANCO
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/    <------ CONSULTA O BANCO DENOVO, NÃO DEVE ALTERAR
+	
+		[... "count": 792, ...]
+		
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;     <------ MESMA COISA QUE O DE CIMA
+	 count 
+	-------
+	   792
+	(1 row)
+	
+
+APAGA O ULTIMO REGISTRO
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'portaria-de-pessoal-gm/ms-n-30-de-10-de-janeiro-de-2024-537091380';
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   791
+	(1 row)
+
+	
+AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=true
+
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   792
+	(1 row)
+	
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'portaria-de-pessoal-gm/ms-n-30-de-10-de-janeiro-de-2024-537091380';                   <------ PARA GARANTIR, DEVE DELETAR MESMO ELEMENTO DE ANTES SEM ERROR
+	
+
+TESTANDO DOU3: 
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+
+	EXECUTA O TRIGGER: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3&saveInDBFlag=true
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   2392
+	(1 row)
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/              <------ CONSULTA O BANCO
+	
+		[... "count": 2392, ...]
+	
+	http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3               <------ CONSULTA SEM SALVAR NO BANCO
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/    <------ CONSULTA O BANCO DENOVO, NÃO DEVE ALTERAR
+	
+		[... "count": 2392, ...]
+		
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;     <------ MESMA COISA QUE O DE CIMA
+	 count 
+	-------
+	   2392
+	(1 row)
+	
+
+APAGA O ULTIMO REGISTRO
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'edital-n-1-anvisa-de-11-de-janeiro-de-2024-537292877';
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   2391
+	(1 row)
+
+	
+AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3&saveInDBFlag=true
+
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   2392
+	(1 row)
+	
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'edital-n-1-anvisa-de-11-de-janeiro-de-2024-537292877';                   <------ PARA GARANTIR, DEVE DELETAR MESMO ELEMENTO DE ANTES SEM ERROR
+
+
+

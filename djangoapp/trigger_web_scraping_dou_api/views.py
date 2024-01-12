@@ -32,8 +32,14 @@ class ScraperViewSet(APIView):
         # Se ?section= foi passado no URL query string param
         elif URLQueryStringParameterValidator.is_secaoURLQueryString_unic(secaoURLQueryString, dataURLQueryString) and \
              URLQueryStringParameterValidator.is_secaoURLQueryString_valid(secaoURLQueryString):
-                 
-            return Response(self.handle_secaoURLQueryString_single_param(secaoURLQueryString))
+            
+            if saveInDBFlagURLQueryString:
+                
+                print("IF DO saveInDBFlagURLQueryString executado!!!!!!!!!")
+                
+                return Response(self.handle_secaoURLQueryString_single_param(secaoURLQueryString, saveInDBFlagURLQueryString=True))
+            
+            return Response(self.handle_secaoURLQueryString_single_param(secaoURLQueryString, saveInDBFlagURLQueryString=False))
         
         
         # Se ?data= foi passado no URL query string param
@@ -66,9 +72,9 @@ class ScraperViewSet(APIView):
 
     # Varre os DOU da seção mencionada no query string param, na data atual
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`
-    def handle_secaoURLQueryString_single_param(self, secaoURLQueryString_param):
+    def handle_secaoURLQueryString_single_param(self, secaoURLQueryString_param, saveInDBFlagURLQueryString):
         
-        return ScraperUtil.run_scraper_with_section(DOU_BASE_URL, secaoURLQueryString_param)
+        return ScraperUtil.run_scraper_with_section(DOU_BASE_URL, secaoURLQueryString_param, saveInDBFlagURLQueryString)
     
     
     # Varre todos os DOU da data mencionada no query string param

@@ -54,7 +54,7 @@ class ScraperUtil:
     
     
     @staticmethod
-    def run_scraper_with_section(url_param: str, secaoURLQueryString_param):
+    def run_scraper_with_section(url_param: str, secaoURLQueryString_param, saveInDBFlagURLQueryString : bool):
         
         # Todos argumentos presentes, Varre os DOU da seção mencionada no query string param, na data atual
 
@@ -65,7 +65,7 @@ class ScraperUtil:
         
         url_param = url_param + "?data=" + date_sp_now_formated_db_pattern + "&secao=" + secaoURLQueryString_param
         
-        return ScraperUtil.run_generic_scraper(url_param, False)
+        return ScraperUtil.run_generic_scraper(url_param, saveInDBFlagURLQueryString)
     
     
     
