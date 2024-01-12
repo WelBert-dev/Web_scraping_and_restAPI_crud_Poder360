@@ -508,3 +508,58 @@ Varre os DOU da seção mencionada no query string param, na data atual
 - Obs2: Retorno sem paginação por enquanto.
 
 - Já fazendo algumas validações no validator especializado, e logger nos erros.
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+14o - ScraperAPI: Comaça a implementar a `?saveInDB=true` para cada um dos enpoints:
+
+	Varre tudo da home do https://www.in.gov.br/leiturajornal         <--------- PARA ESTE PRIMEIRO
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
+	
+	
+	
+	Varre os DOU da seção mencionada na data atual
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`
+	
+	
+	
+	Varre os DOU da seção mencionada e na data mencionada
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`
+
+
+Modificações em geral nas funções para não fazer duplicatas.
+
+Adicionando a variável bool `saveInDBFlagURLQueryString` do parâmetro URL query string `?saveInDB=true` para o handler genérico - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ que faz a requisição crua sem parametros. Ou seja, getAll
+
+
+
+
+REQUISIÇÃO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=true 
+
+Varre tudo da home do https://www.in.gov.br/leiturajornal e salva no banco.
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+14o - Database DOU API: Após utilizar a API especializada para os gatilhos na raspagem, resolvi criar outra API especializada em fazer as requisições para o banco local, ou seja, não implementar na mesma API especializada em raspagem para maior coesão.
+
+
+- Essa API `db_dou_api` faz requisições para a mesma tabela alimentada pelos triggers da `trigger_web_scraping_dou_api`
+
+- Ou seja, utilizamos uma API para fazer os disparos das raspagens e se quiser alimentamos o banco.
+
+- E Posteriormente, podemos acessar via outra API esses dados já armazenados no banco local.
+
+- OBS: Ainda não faz verificações para evitar duplicatas de registros!! Ou seja, toda vez que executar o gatilho GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=true vai appender os mesmos registros no insert into..
+
+
+- SOLUÇÃO QUE VOU IMPLEMENTAR PARA EVITAR DUPLICATAS: Utilizar o atributo "urlTitle": "resolucao-re-n-95-de-10-de-janeiro-de-2024-537019492" como chave primária. 
+
+
+- MELHOR SOLUÇÃO VISANDO PERFORMANCE: Antes de fazer a raspagem e salvar, verificar se já possue registros no banco local da data mencionada, e verificar se a quantidade de registros é a mesma no portal do DOU, desta forma, só iriamos inserir novamente a diferença entre os dois conjuntos.
+
+
+

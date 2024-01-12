@@ -1,7 +1,11 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import viewsets
 from .scrapers import ScraperUtil
 from .validators import URLQueryStringParameterValidator
+
+from trigger_web_scraping_dou_api.serializers import JournalJsonArrayOfDOUSerializer
+from trigger_web_scraping_dou_api.models import JournalJsonArrayOfDOU
 
 import os
 
@@ -11,12 +15,18 @@ class ScraperViewSet(APIView):
     def get(self, request):
         secaoURLQueryString = request.GET.get('secao')
         dataURLQueryString = request.GET.get('data')
+        
+        saveInDBFlagURLQueryString = request.GET.get('saveInDBFlag')
 
 
         # Se não existem parâmetros
         if URLQueryStringParameterValidator.is_empty_params(secaoURLQueryString, dataURLQueryString):
             
-            return Response(self.handle_URL_empty_params())
+            if saveInDBFlagURLQueryString:
+
+                return Response(self.handle_URL_empty_params(saveInDBFlagURLQueryString=True))
+            
+            return Response(self.handle_URL_empty_params(saveInDBFlagURLQueryString=False))
 
 
         # Se ?section= foi passado no URL query string param
@@ -49,10 +59,10 @@ class ScraperViewSet(APIView):
 
     # Varre tudo da home do https://www.in.gov.br/leiturajornal
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
-    def handle_URL_empty_params(self):
-       
-        return ScraperUtil.run_generic_scraper(DOU_BASE_URL)
-    
+    def handle_URL_empty_params(self, saveInDBFlagURLQueryString):
+        
+        return ScraperUtil.run_generic_scraper(DOU_BASE_URL, saveInDBFlagURLQueryString)
+        
 
     # Varre os DOU da seção mencionada no query string param, na data atual
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`
@@ -77,4 +87,10 @@ class ScraperViewSet(APIView):
 
 
 
-     
+
+class JournalJsonArrayOfDOUViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows JsonArrayOfDOU to be viewed or edited.
+    """
+    queryset = JournalJsonArrayOfDOU.objects.all()
+    serializer_class = JournalJsonArrayOfDOUSerializer

@@ -2,6 +2,8 @@ import json
 import cfscrape
 from bs4 import BeautifulSoup
 
+from trigger_web_scraping_dou_api.models import JournalJsonArrayOfDOU
+
 
 from datetime import datetime, timedelta
 import pytz
@@ -10,8 +12,8 @@ import pytz
 class ScraperUtil:
     
     @staticmethod
-    def run_generic_scraper(url_param: str):
-
+    def run_generic_scraper(url_param: str, saveInDBFlagURLQueryString : bool):
+        
         scraper = cfscrape.create_scraper()
         response = scraper.get(url_param)
 
@@ -30,7 +32,18 @@ class ScraperUtil:
                 jsonArrayField = journals_json.get("jsonArray")
 
                 if jsonArrayField:
-            
+                    
+                    if saveInDBFlagURLQueryString:
+                        
+                        # jsonArrayField = data.get('json_array_data', []) 
+                        jsonArrayFieldObjectsList = [JournalJsonArrayOfDOU(**item) for item in jsonArrayField]
+                        
+                        # Antes de chamar bulk_create, transformação nos dados normalizando no padrão YYYY-MM-DD
+                        for ato in jsonArrayFieldObjectsList:
+                            ato.pubDate = datetime.strptime(ato.pubDate, "%d/%m/%Y").strftime("%Y-%m-%d")
+                            
+                        JournalJsonArrayOfDOU.objects.bulk_create(jsonArrayFieldObjectsList)
+                        
                     return jsonArrayField
                 
                 else:
@@ -60,7 +73,7 @@ class ScraperUtil:
         
         url_param = url_param + "?data=" + date_sp_now_formated_db_pattern + "&secao=" + secaoURLQueryString_param
         
-        return ScraperUtil.run_generic_scraper(url_param)
+        return ScraperUtil.run_generic_scraper(url_param, False)
     
     
     
@@ -71,7 +84,7 @@ class ScraperUtil:
             
         url_param = url_param + "?data=" + dataURLQueryString_param
         
-        return ScraperUtil.run_generic_scraper(url_param)
+        return ScraperUtil.run_generic_scraper(url_param, False)
     
     
     
@@ -82,7 +95,7 @@ class ScraperUtil:
             
         url_param = url_param + "?data=" + dataURLQueryString_param + "&secao=" + secaoURLQueryString_param
         
-        return ScraperUtil.run_generic_scraper(url_param)
+        return ScraperUtil.run_generic_scraper(url_param, False)
             
 
 
