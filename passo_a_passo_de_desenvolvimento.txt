@@ -636,5 +636,242 @@ AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_d
 PRONTO, SÓ ESTÁ SALVANDO A DIFERENÇA ENTRE OS DOIS CONJUNTOS.
 
 
+-------------------------------------------------------------------------------------------------------------------------------
     
+16o - Como foi alterado a chave primária do JournalJsonArrayOfDOU para `urlTitle`, refletiu problemas em outras partes do código: Isso ocorreu pois o django rest framework utiliza o atributo id para algumas tarefas de controle interno, então a solução é fazer rollback da tarefa anterior e alterar a lógica que garante não duplicar os elementos (fazendo comparações equals com o campo `urlTitle` antes de insert into)
+
+
+ANTES: FUNCIONAL PARA GERAR ID AUTO INCREMENT pois o django não tem essa funcionalidade para campos que NÃO SEJAM A CHAVE PRIMÁRIA ( id = models.AutoField(primary_key=True) ) <--- SÓ FUNCIONA PARA CHAVE PRIMÁRIA.
+
+
+ESSA FOI A SOLUÇÃO ANTERIOR PARA GERAR OS ID's DE MANEIRA INCREMENTAL AUTOMÁTICAMENTE EM CASOS EM QUE A CHAVE PRIMÁRIA NÃO PODE SER A COLUNA ID:
+
+        global_last_id = JournalJsonArrayOfDOU.objects.all().aggregate(largest=models.Max('id'))['largest']
+        
+        if global_last_id is None:
+            global_last_id = 1
+        
+        dou_journals_toBe_insert = []
+
+        for obj in dou_journals_jsonArrayField_list:
+            journal_obj = JournalJsonArrayOfDOU(
+                id=global_last_id,
+                urlTitle=obj.urlTitle,
+                pubName=obj.pubName,
+                numberPage=obj.numberPage,
+                subTitulo=obj.subTitulo,
+                titulo=obj.titulo,
+                title=obj.title,
+                pubDate=obj.pubDate,
+                content=obj.content,
+                editionNumber=obj.editionNumber,
+                hierarchyLevelSize=obj.hierarchyLevelSize,
+                artType=obj.artType,
+                pubOrder=obj.pubOrder,
+                hierarchyStr=obj.hierarchyStr,
+                hierarchyList=obj.hierarchyList
+            )
+            dou_journals_toBe_insert.append(journal_obj)
+
+            global_last_id += 1
+            
+            
+
+SOLUÇÃO AGORA: ROLLBACK PARA A TAREFA 15, PORÉM COM PEQUENAS MUDANÇAS NA LÓGICA QUE GARANTE DISTINCT DOS RECORDS.
+
+
+	[... CODIGOS ...]
+
+
+REFLETINDO AS ALTERAÇÕES NO BANCO COM MIGRATIONS: 
+
+	docker-compose run djangoapp python manage.py makemigrations
+
+	docker-compose run djangoapp python manage.py migrate
+
+
+ERROR COM EXPLICAÇÕES DELE ABAIXO E COMO SOLUCIONAR TAMBÉM:
+
+
+psql         | 2024-01-12 16:43:10.069 UTC [61] ERROR:  multiple primary keys for table "trigger_web_scraping_dou_api_journaljsonarrayofdou" are not allowed
+psql         | 2024-01-12 16:43:10.069 UTC [61] STATEMENT:  ALTER TABLE "trigger_web_scraping_dou_api_journaljsonarrayofdou" ADD CONSTRAINT "trigger_web_scraping_dou__id_cb3d5ddd_pk" PRIMARY KEY ("id")
+djangoapp    |   Applying trigger_web_scraping_dou_api.0004_alter_journaljsonarrayofdou_id_and_more...Traceback (most recent call last):
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 87, in _execute
+djangoapp    |     return self.cursor.execute(sql)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    | psycopg2.errors.InvalidTableDefinition: multiple primary keys for table "trigger_web_scraping_dou_api_journaljsonarrayofdou" are not allowed
+djangoapp    | 
+djangoapp    | 
+djangoapp    | The above exception was the direct cause of the following exception:
+djangoapp    | 
+djangoapp    | Traceback (most recent call last):
+djangoapp    |   File "/djangoapp/manage.py", line 22, in <module>
+djangoapp    |     main()
+djangoapp    |   File "/djangoapp/manage.py", line 18, in main
+djangoapp    |     execute_from_command_line(sys.argv)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+djangoapp    |     utility.execute()
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/__init__.py", line 436, in execute
+djangoapp    |     self.fetch_command(subcommand).run_from_argv(self.argv)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/base.py", line 412, in run_from_argv
+djangoapp    |     self.execute(*args, **cmd_options)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/base.py", line 458, in execute
+djangoapp    |     output = self.handle(*args, **options)
+djangoapp    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/base.py", line 106, in wrapper
+djangoapp    |     res = handle_func(*args, **kwargs)
+djangoapp    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/management/commands/migrate.py", line 356, in handle
+djangoapp    |     post_migrate_state = executor.migrate(
+djangoapp    |                          ^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/migrations/executor.py", line 135, in migrate
+djangoapp    |     state = self._migrate_all_forwards(
+djangoapp    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/migrations/executor.py", line 167, in _migrate_all_forwards
+djangoapp    |     state = self.apply_migration(
+djangoapp    |             ^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/migrations/executor.py", line 252, in apply_migration
+djangoapp    |     state = migration.apply(state, schema_editor)
+djangoapp    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/migrations/migration.py", line 132, in apply
+djangoapp    |     operation.database_forwards(
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/migrations/operations/fields.py", line 235, in database_forwards
+djangoapp    |     schema_editor.alter_field(from_model, from_field, to_field)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/base/schema.py", line 831, in alter_field
+djangoapp    |     self._alter_field(
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/postgresql/schema.py", line 288, in _alter_field
+djangoapp    |     super()._alter_field(
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/base/schema.py", line 1118, in _alter_field
+djangoapp    |     self.execute(self._create_primary_key_sql(model, new_field))
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/postgresql/schema.py", line 48, in execute
+djangoapp    |     return super().execute(sql, None)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/base/schema.py", line 201, in execute
+djangoapp    |     cursor.execute(sql, params)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 102, in execute
+djangoapp    |     return super().execute(sql, params)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 67, in execute
+djangoapp    |     return self._execute_with_wrappers(
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 80, in _execute_with_wrappers
+djangoapp    |     return executor(sql, params, many, context)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 84, in _execute
+djangoapp    |     with self.db.wrap_database_errors:
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+djangoapp    |     raise dj_exc_value.with_traceback(traceback) from exc_value
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/db/backends/utils.py", line 87, in _execute
+djangoapp    |     return self.cursor.execute(sql)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    | django.db.utils.ProgrammingError: multiple primary keys for table "trigger_web_scraping_dou_api_journaljsonarrayofdou" are not allowed
+
+
+
+Isso ocorre quando estavamos tentando alterar a coluna da chave primária pelo migrations, ao executar:
+
+	docker-compose run djangoapp python manage.py makemigrations
+
+Será gerado o arquivo: 
+
+
+	from django.db import migrations, models
+
+
+	class Migration(migrations.Migration):
+
+	    dependencies = [
+		('trigger_web_scraping_dou_api', '0003_journaljsonarrayofdou_id'),
+	    ]
+
+	    operations = [
+    		migrations.AlterField(
+		    model_name='journaljsonarrayofdou',
+		    name='id',                                                   <---- NOVA CHAVE PRIMÁRIA DEPOIS DE MIGRAR
+		    field=models.AutoField(primary_key=True, serialize=False),
+		),
+		 migrations.AlterField(
+		    model_name='journaljsonarrayofdou',
+		    name='urlTitle',
+		    field=models.CharField(max_length=255, unique=True),          <---- CHAVE PRIMÁRIA ATUAL ANTES DE MIGRAR
+		),
+	    ]
+
+
+AO QUE ESTÁ O PROBLEMA: A ordem das duas migrações gerada automáticamente é relevante! 
+
+Ao tentar aplicar as alterações para o primeiro:
+
+		migrations.AlterField(
+		    model_name='journaljsonarrayofdou',
+		    name='id',                                                   <---- NOVA CHAVE PRIMÁRIA DEPOIS DE MIGRAR
+		    field=models.AutoField(primary_key=True, serialize=False),
+		),
+
+Ocorre o erro, pois atualmente o campo `name='urlTitle'` é a chave primária.
+
+
+SOLUÇÃO: Basta alterar a ordem para:
+
+
+
+	from django.db import migrations, models
+
+
+	class Migration(migrations.Migration):
+
+	    dependencies = [
+		('trigger_web_scraping_dou_api', '0003_journaljsonarrayofdou_id'),
+	    ]
+
+	    operations = [
+    		migrations.AlterField(
+		    model_name='journaljsonarrayofdou',
+		    name='urlTitle',
+		    field=models.CharField(max_length=255, unique=True),         <---- CHAVE PRIMÁRIA ATUAL ANTES DE MIGRAR
+		),
+    		migrations.AlterField(
+		    model_name='journaljsonarrayofdou',
+		    name='id',                                                   <---- NOVA CHAVE PRIMÁRIA DEPOIS DE MIGRAR
+		    field=models.AutoField(primary_key=True, serialize=False),
+		),
+	    ]
+
+
+Desta forma primeiro ele vai remover a chave primária do name='urlTitle' e depois aplicar no id.
+
+
+TESTANDO: 
+
+	EXECUTA O TRIGGER: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=1
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   239
+	(1 row)
+
+
+APAGA O ULTIMO REGISTRO
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'retificacao-537039836';
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   238
+	(1 row)
+
+	
+AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=1
+
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   239
+	(1 row)
+
+
+PRONTO, SÓ ESTÁ SALVANDO A DIFERENÇA ENTRE OS DOIS CONJUNTOS.
+
 

@@ -1,8 +1,9 @@
 from django.db import models
 
 class JournalJsonArrayOfDOU(models.Model):
+    id = models.AutoField(primary_key=True)
     pubName = models.CharField(max_length=255)
-    urlTitle = models.CharField(max_length=255, primary_key=True, unique=True)
+    urlTitle = models.CharField(max_length=255, unique=True)
     numberPage = models.IntegerField()
     subTitulo = models.TextField()
     titulo = models.TextField()

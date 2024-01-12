@@ -11,7 +11,6 @@ class JournalJsonArrayOfDOUService:
         for single_dou_journal in dou_journals_jsonArrayField_list:
             single_dou_journal.pubDate = datetime.strptime(single_dou_journal.pubDate, "%d/%m/%Y").strftime("%Y-%m-%d")
         
-        
         dou_journals_toBe_insert = [
             JournalJsonArrayOfDOU(
                 urlTitle=obj.urlTitle,
@@ -34,10 +33,10 @@ class JournalJsonArrayOfDOUService:
 
         # Verifique quais objetos já existem no banco de dados
         existing_record = JournalJsonArrayOfDOU.objects.filter(urlTitle__in=[obj.urlTitle for obj in dou_journals_toBe_insert])
-
+        
         # Remova os objetos existentes da lista para evitar a duplicação
         dou_journals_toBe_insert = [obj for obj in dou_journals_toBe_insert if obj.urlTitle not in existing_record.values_list('urlTitle', flat=True)]
-
+        
         # Use bulk_create para inserir os objetos restantes
         JournalJsonArrayOfDOU.objects.bulk_create(dou_journals_toBe_insert) 
     
