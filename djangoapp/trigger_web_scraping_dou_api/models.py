@@ -2,7 +2,7 @@ from django.db import models
 
 class JournalJsonArrayOfDOU(models.Model):
     pubName = models.CharField(max_length=255)
-    urlTitle = models.CharField(max_length=255)
+    urlTitle = models.CharField(max_length=255, primary_key=True, unique=True)
     numberPage = models.IntegerField()
     subTitulo = models.TextField()
     titulo = models.TextField()

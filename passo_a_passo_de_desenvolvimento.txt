@@ -542,16 +542,17 @@ REQUISIÇÃO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=t
 
 Varre tudo da home do https://www.in.gov.br/leiturajornal e salva no banco.
 
+
 -------------------------------------------------------------------------------------------------------------------------------
 
-14o - Database DOU API: Após utilizar a API especializada para os gatilhos na raspagem, resolvi criar outra API especializada em fazer as requisições para o banco local, ou seja, não implementar na mesma API especializada em raspagem para maior coesão.
+14o - Database DOU API: Após utilizar a API especializada para os gatilhos na raspagem, resolvi criar outra ROTA especializada em fazer as requisições para o banco local, ou seja, não implementar na mesma API especializada em raspagem para maior coesão.
 
 
-- Essa API `db_dou_api` faz requisições para a mesma tabela alimentada pelos triggers da `trigger_web_scraping_dou_api`
+- Essa ROTA `db_dou_api` faz requisições para a mesma tabela alimentada pelos triggers da `trigger_web_scraping_dou_api`
 
 - Ou seja, utilizamos uma API para fazer os disparos das raspagens e se quiser alimentamos o banco.
 
-- E Posteriormente, podemos acessar via outra API esses dados já armazenados no banco local.
+- E Posteriormente, podemos acessar via outra ROTA esses dados já armazenados no banco local.
 
 - OBS: Ainda não faz verificações para evitar duplicatas de registros!! Ou seja, toda vez que executar o gatilho GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=true vai appender os mesmos registros no insert into..
 
@@ -562,4 +563,78 @@ Varre tudo da home do https://www.in.gov.br/leiturajornal e salva no banco.
 - MELHOR SOLUÇÃO VISANDO PERFORMANCE: Antes de fazer a raspagem e salvar, verificar se já possue registros no banco local da data mencionada, e verificar se a quantidade de registros é a mesma no portal do DOU, desta forma, só iriamos inserir novamente a diferença entre os dois conjuntos.
 
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+15o - Altera a chave primária da entidade JournalJsonArrayOfDOU utilizando o attr `urlTitle` pois ele é único, desta forma não vão ocorrer duplicatas (DISTINCT) de registros quando disparado os triggers de raspagem várias vezes.
+
+	[models.JournalJsonArrayOfDOU]:
+	
+	urlTitle = models.CharField(max_length=255, primary_key=True, unique=True)
+
+
+docker exec -it psql psql -U CHANGE-ME -d db_poder360
+
+DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+
+quit
+
+docker-compose run djangoapp python manage.py makemigrations
+
+docker-compose run djangoapp python manage.py migrate
+
+docker exec -it psql psql -U CHANGE-ME -d db_poder360
+
+\d trigger_web_scraping_dou_api_journaljsonarrayofdou;
+
+
+OUTPUT:
+
+	db_poder360=# \d trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	      Table "public.trigger_web_scraping_dou_api_journaljsonarrayofdou"
+	       Column       |          Type          | Collation | Nullable | Default 
+	--------------------+------------------------+-----------+----------+---------
+	 pubName            | character varying(255) |           | not null | 
+	 urlTitle           | character varying(255) |           | not null | 
+	 numberPage         | integer                |           | not null | 
+	 subTitulo          | text                   |           | not null | 
+	 titulo             | text                   |           | not null | 
+	 title              | text                   |           | not null | 
+	 pubDate            | date                   |           | not null | 
+	 content            | text                   |           | not null | 
+	 editionNumber      | integer                |           | not null | 
+	 hierarchyLevelSize | integer                |           | not null | 
+	 artType            | character varying(255) |           | not null | 
+	 pubOrder           | character varying(255) |           | not null | 
+	 hierarchyStr       | text                   |           | not null | 
+	 hierarchyList      | jsonb                  |           | not null | 
+	Indexes:
+	    "trigger_web_scraping_dou__urlTitle_b95cfbb1_pk" PRIMARY KEY, btree ("urlTitle")
+	    "trigger_web_scraping_dou_urlTitle_b95cfbb1_like" btree ("urlTitle" varchar_pattern_ops)
+    
+
+EXECUTA O TRIGGER: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=1
+
+
+APAGA O ULTIMO REGISTRO
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'resolucao-re-n-95-de-10-de-janeiro-de-2024-537019492';
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   162
+	(1 row)
+	
+AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=1
+
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   163
+	(1 row)
+
+PRONTO, SÓ ESTÁ SALVANDO A DIFERENÇA ENTRE OS DOIS CONJUNTOS.
+
+
+    
 

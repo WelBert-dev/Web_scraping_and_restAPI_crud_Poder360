@@ -2,11 +2,10 @@ import json
 import cfscrape
 from bs4 import BeautifulSoup
 
-from trigger_web_scraping_dou_api.models import JournalJsonArrayOfDOU
-
-
 from datetime import datetime, timedelta
 import pytz
+
+from trigger_web_scraping_dou_api.services import JournalJsonArrayOfDOUService
 
 
 class ScraperUtil:
@@ -21,30 +20,23 @@ class ScraperUtil:
             
             site_html_str = BeautifulSoup(response.text, "html.parser")
 
-            all_scriptTag_that_contains_journals_json =  site_html_str.find('script', {'id': 'params'})
+            all_scriptTag_that_contains_dou_journals_json =  site_html_str.find('script', {'id': 'params'})
 
-            if all_scriptTag_that_contains_journals_json:
+            if all_scriptTag_that_contains_dou_journals_json:
 
-                scriptTag_that_contains_journals_json = all_scriptTag_that_contains_journals_json.contents[0]
+                scriptTag_that_contains_dou_journals_json = all_scriptTag_that_contains_dou_journals_json.contents[0]
 
-                journals_json = json.loads(scriptTag_that_contains_journals_json)
+                dou_journals_json = json.loads(scriptTag_that_contains_dou_journals_json)
 
-                jsonArrayField = journals_json.get("jsonArray")
+                dou_journals_jsonArrayField_dict = dou_journals_json.get("jsonArray")
 
-                if jsonArrayField:
+                if dou_journals_jsonArrayField_dict:
                     
                     if saveInDBFlagURLQueryString:
+                        JournalJsonArrayOfDOUService.insert_into_distinct_with_dict(dou_journals_jsonArrayField_dict)
                         
-                        # jsonArrayField = data.get('json_array_data', []) 
-                        jsonArrayFieldObjectsList = [JournalJsonArrayOfDOU(**item) for item in jsonArrayField]
                         
-                        # Antes de chamar bulk_create, transformação nos dados normalizando no padrão YYYY-MM-DD
-                        for ato in jsonArrayFieldObjectsList:
-                            ato.pubDate = datetime.strptime(ato.pubDate, "%d/%m/%Y").strftime("%Y-%m-%d")
-                            
-                        JournalJsonArrayOfDOU.objects.bulk_create(jsonArrayFieldObjectsList)
-                        
-                    return jsonArrayField
+                    return dou_journals_jsonArrayField_dict
                 
                 else:
 
