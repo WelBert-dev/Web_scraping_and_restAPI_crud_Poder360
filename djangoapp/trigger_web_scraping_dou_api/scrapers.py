@@ -23,11 +23,11 @@ class ScraperUtil:
             site_html_str = BeautifulSoup(response.text, "html.parser")
 
             all_scriptTag_that_contains_dou_journals_json =  site_html_str.find('script', {'id': 'params'})
-
+            
             if all_scriptTag_that_contains_dou_journals_json:
 
                 scriptTag_that_contains_dou_journals_json = all_scriptTag_that_contains_dou_journals_json.contents[0]
-
+                
                 dou_journals_json = json.loads(scriptTag_that_contains_dou_journals_json)
 
                 dou_journals_jsonArrayField_dict = dou_journals_json.get("jsonArray")
@@ -37,21 +37,23 @@ class ScraperUtil:
                     if saveInDBFlagURLQueryString:
                         JournalJsonArrayOfDOUService.insert_into_distinct_with_dict(dou_journals_jsonArrayField_dict)
                         
-                        
                     return dou_journals_jsonArrayField_dict
                 
                 else:
 
                     # Nenhuma matéria postada no dia atual, pega o dia anterior.
                     # Função recursiva, que fica fazendo rollback do dia até encontrar dados:
-                    ScraperUtil.scrape_previous_day()
+                    # ScraperUtil.scrape_previous_day()
+                    
+                    return ({"jsonArray_isEmpty":"objeto jsonArray é vazio, então não existem jornais para este dia!"})
+                
             else:
                 
-                return "Tag <script id='params'> não encontrada.\nView do DOU sofreu mudanças! ;-;"
+                return ({"error_in_our_server_side":"Tag <script id='params'> não encontrada.\nView do DOU sofreu mudanças! ;-;"})
 
         else:
             
-            return "Falha na requisição. Código de status: " + response.status_code
+            return ({"error_in_dou_server_side":response.text, "status_code":response.status_code, "response_obj":response})
     
     
     @staticmethod
