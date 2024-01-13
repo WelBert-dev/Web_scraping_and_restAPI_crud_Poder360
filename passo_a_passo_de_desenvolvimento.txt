@@ -488,7 +488,7 @@ Varre os DOU da seção mencionada no query string param, na data atual
 -------------------------------------------------------------------------------------------------------------------------------
 
 11o - ScraperAPI: Add endpoint GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`
-- Obs1: Ainda não salvando em banco, vou implementar uma flag `?saveInDB=true` depois.
+- Obs1: Ainda não salvando em banco, vou implementar uma flag `?saveInDBFlag=true` depois.
 
 - Obs2: Retorno sem paginação por enquanto.
 
@@ -503,7 +503,7 @@ Varre os DOU da seção mencionada no query string param, na data atual
 -------------------------------------------------------------------------------------------------------------------------------
 
 13o - ScraperAPI: Add endpoint GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1|do2|do3&data=DD-MM-AAAA`
-- Obs1: Ainda não salvando em banco, vou implementar uma flag `?saveInDB=true` depois.
+- Obs1: Ainda não salvando em banco, vou implementar uma flag `?saveInDBFlag=true` depois.
 
 - Obs2: Retorno sem paginação por enquanto.
 
@@ -512,38 +512,38 @@ Varre os DOU da seção mencionada no query string param, na data atual
 
 -------------------------------------------------------------------------------------------------------------------------------
 
-14o - ScraperAPI: Comaça a implementar a `?saveInDB=true` para cada um dos enpoints:
+14o - ScraperAPI: Comaça a implementar a `?saveInDBFlag=true` para cada um dos enpoints:
 
 	Varre tudo da home do https://www.in.gov.br/leiturajornal         <--------- PARA ESTE PRIMEIRO
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=true 
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=true 
 	
 	
 	
 	Varre os DOU da seção mencionada na data atual
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`?saveInDB=true
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`?saveInDBFlag=true
 	
 	
 	Varre os DOU da data mencionada                             
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`?saveInDB=true
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`?saveInDBFlag=true
 	
 	
 	
 	Varre os DOU da seção mencionada e na data mencionada
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`?saveInDB=true
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`?saveInDBFlag=true
 
 
 Modificações em geral nas funções para não fazer duplicatas.
 
-Adicionando a variável bool `saveInDBFlagURLQueryString` do parâmetro URL query string `?saveInDB=true` para o handler genérico - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ que faz a requisição crua sem parametros. Ou seja, getAll
+Adicionando a variável bool `saveInDBFlagURLQueryString` do parâmetro URL query string `?saveInDBFlag=true` para o handler genérico - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ que faz a requisição crua sem parametros. Ou seja, getAll
 
 
 
 
-REQUISIÇÃO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=true 
+REQUISIÇÃO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=true 
 
 Varre tudo da home do https://www.in.gov.br/leiturajornal e salva no banco.
 
@@ -559,7 +559,7 @@ Varre tudo da home do https://www.in.gov.br/leiturajornal e salva no banco.
 
 - E Posteriormente, podemos acessar via outra ROTA esses dados já armazenados no banco local.
 
-- OBS: Ainda não faz verificações para evitar duplicatas de registros!! Ou seja, toda vez que executar o gatilho GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=true vai appender os mesmos registros no insert into..
+- OBS: Ainda não faz verificações para evitar duplicatas de registros!! Ou seja, toda vez que executar o gatilho GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=true vai appender os mesmos registros no insert into..
 
 
 - SOLUÇÃO QUE VOU IMPLEMENTAR PARA EVITAR DUPLICATAS: Utilizar o atributo "urlTitle": "resolucao-re-n-95-de-10-de-janeiro-de-2024-537019492" como chave primária. 
@@ -882,28 +882,28 @@ PRONTO, SÓ ESTÁ SALVANDO A DIFERENÇA ENTRE OS DOIS CONJUNTOS.
 
 -------------------------------------------------------------------------------------------------------------------------------
 
-17o - ScraperAPI: Replicando a implementação `?saveInDB=true` para cada um dos enpoints:
+17o - ScraperAPI: Replicando a implementação `?saveInDBFlag=true` para cada um dos enpoints:
 
 	Varre tudo da home do https://www.in.gov.br/leiturajornal         <--------- PRONTO NA TAREFA ANTERIOR
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDB=true
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=true
 	
 	
 	
 	Varre os DOU da seção mencionada na data atual                    <--------- PARA ESTE AGORA
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`?saveInDB=true
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`?saveInDBFlag=true
 	
 	
 	Varre os DOU da data mencionada                            
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`?saveInDB=true
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`?saveInDBFlag=true
 	
 	
 	
 	Varre os DOU da seção mencionada e na data mencionada
 	
-	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`?saveInDB=true
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`?saveInDBFlag=true
 
 
 Modificações em geral nas funções para não fazer duplicatas, pois a parte maior deste desenvolvimento foi feito na tarefa do primeiro endpoint, agora é só ir replicando nas assinaturas de outros endpoints o parâmetro `saveInDBFlagURLQueryString : bool`.
@@ -1069,5 +1069,311 @@ PRONTO, SÓ ESTÁ SALVANDO A DIFERENÇA ENTRE OS DOIS CONJUNTOS.
 
 
 
+Refactoring ScraperAPI Service: Reduz a quantidade de loopings no insert into e obtém o mesmo resultado porém mais rapidamente. 
+
+TESTANDO DOU1: 
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+
+	EXECUTA O TRIGGER: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=true
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   239
+	(1 row)
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/              <------ CONSULTA O BANCO
+	
+		[... "count": 239, ...]
+	
+	http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2               <------ CONSULTA SEM SALVAR NO BANCO
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/    <------ CONSULTA O BANCO DENOVO, NÃO DEVE ALTERAR
+	
+		[... "count": 239, ...]
+		
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;     <------ MESMA COISA QUE O DE CIMA
+	 count 
+	-------
+	   239
+	(1 row)
+	
+
+APAGA O ULTIMO REGISTRO
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'retificacao-537039836';
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   238
+	(1 row)
+
+	
+AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=true
+
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   239
+	(1 row)
+	
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'retificacao-537039836';                   <------ PARA GARANTIR, DEVE DELETAR MESMO ELEMENTO DE ANTES SEM ERROR
+	
+	
+	
+TESTANDO DOU2: 
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+
+	EXECUTA O TRIGGER: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2&saveInDBFlag=true
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   792
+	(1 row)
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/              <------ CONSULTA O BANCO
+	
+		[... "count": 792, ...]
+	
+	http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2               <------ CONSULTA SEM SALVAR NO BANCO
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/    <------ CONSULTA O BANCO DENOVO, NÃO DEVE ALTERAR
+	
+		[... "count": 792, ...]
+		
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;     <------ MESMA COISA QUE O DE CIMA
+	 count 
+	-------
+	   792
+	(1 row)
+	
+
+APAGA O ULTIMO REGISTRO
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'portaria-de-pessoal-gm/ms-n-30-de-10-de-janeiro-de-2024-537091380';
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   791
+	(1 row)
+
+	
+AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=true
+
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   792
+	(1 row)
+	
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'portaria-de-pessoal-gm/ms-n-30-de-10-de-janeiro-de-2024-537091380';                   <------ PARA GARANTIR, DEVE DELETAR MESMO ELEMENTO DE ANTES SEM ERROR
+	
+
+TESTANDO DOU3: 
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+
+	EXECUTA O TRIGGER: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3&saveInDBFlag=true
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   2392
+	(1 row)
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/              <------ CONSULTA O BANCO
+	
+		[... "count": 2392, ...]
+	
+	http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3               <------ CONSULTA SEM SALVAR NO BANCO
+	
+	http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/    <------ CONSULTA O BANCO DENOVO, NÃO DEVE ALTERAR
+	
+		[... "count": 2392, ...]
+		
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;     <------ MESMA COISA QUE O DE CIMA
+	 count 
+	-------
+	   2392
+	(1 row)
+	
+
+APAGA O ULTIMO REGISTRO
+
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'edital-n-1-anvisa-de-11-de-janeiro-de-2024-537292877';
+	
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   2391
+	(1 row)
+
+	
+AGORA EXECUTA O TRIGGER DENOVO: GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3&saveInDBFlag=true
+
+	SELECT COUNT(*) FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	 count 
+	-------
+	   2392
+	(1 row)
+	
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'edital-n-1-anvisa-de-11-de-janeiro-de-2024-537292877';                   <------ PARA GARANTIR, DEVE DELETAR MESMO ELEMENTO DE ANTES SEM ERROR
+
+
+PRONTO, SÓ ESTÁ SALVANDO A DIFERENÇA ENTRE OS DOIS CONJUNTOS.
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+ 
+ 			ESSE TEM UMA OBS IMPORTANTE!
+ 
+18o - FINALIZA ScraperAPI com as informações gerais para posteriormente implementar os endpoints que detalham cada página single): 
+
+Replicando a implementação `?saveInDBFlag=true` para cada um dos enpoints:
+
+	Varre tudo da home do https://www.in.gov.br/leiturajornal         <--------- PRONTO
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=true 
+	
+	
+	
+	Varre os DOU da seção mencionada na data atual                    <--------- PRONTO NA TAREFA ANTERIOR
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`?saveInDBFlag=true
+	
+	
+	
+	Varre os DOU da data mencionada                                   <--------- PARA ESTE AGORA E O DEBAIXO
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`?saveInDBFlag=true
+	
+	
+	
+	Varre os DOU da seção mencionada e na data mencionada             <--------- PARA ESTE AGORA E O DE CIMA
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`dou1 | dou2 | dou3`&data=`DD-MM-AAAA`?saveInDBFlag=true
+
+
+
+Nesta tarefa eu implementei logo para os dois endpoints acima pois o padrão do portal https://www.in.gov.br/leiturajornal passando APENAS A DATA, é retornar os registros da seção DOU1, mas a ideia é retornar TODOS OS DOUS da data mencionada.
+
+
+Então eu fiz as funções que recebe SEÇÃO e DATA, junto com esse endpoint da DATA sozinha, pois eu utilizo as funções especializadas dos dois parametros neste endpoint, a diferença é que eu passo a seção DOU1 e DOU2 e DOU3 na mão, mesmo que não explicitado na URL query string da chamada (Por conta deste problema no portal DOU do gov).
+
+
+Eu reaproveito a função:
+
+	run_scraper_with_all_params(url_param: str, secaoURLQueryString_param, dataURLQueryString_param, saveInDBFlagURLQueryString : bool):
+		
+Na chamada para os endpoints:
+
+	GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`?saveInDBFlag=true
+	
+	GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`
+	
+	
+REALIZO TAMBÉM TODOS OS MESMOS TESTES ANTERIORES, E MAIS ALGUNS PARA A ULTIMA ROTA DO JSONARRAY GENÉRICO:
+
+	http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=11-01-2024&secao=do2&saveInDBFlag=true
+	
+	
+	
+	
+OBS IMPORTANTE: AS VEZES OCORRE O SEGUINTE ERRO NO PORTAL DOU DO GOV:
+
+ConnectionError at /trigger_web_scraping_dou_api/
+
+HTTPSConnectionPool(host='www.in.gov.br', port=443): Max retries exceeded with url: /leiturajornal?data=11-01-2024&secao=do2 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f3fc80b4390>: Failed to establish a new connection: [Errno -3] Try again'))
+
+Request Method: 	GET
+Request URL: 	http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=11-01-2024&secao=do2&saveInDBFlag=true
+Django Version: 	4.2.9
+Exception Type: 	ConnectionError
+Exception Value: 	
+
+HTTPSConnectionPool(host='www.in.gov.br', port=443): Max retries exceeded with url: /leiturajornal?data=11-01-2024&secao=do2 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f3fc80b4390>: Failed to establish a new connection: [Errno -3] Try again'))
+
+Exception Location: 	/venv/lib/python3.11/site-packages/requests/adapters.py, line 519, in send
+Raised during: 	trigger_web_scraping_dou_api.views.ScraperViewSet
+Python Executable: 	/venv/bin/python
+Python Version: 	3.11.3
+Python Path: 	
+
+['/djangoapp',
+ '/usr/local/lib/python311.zip',
+ '/usr/local/lib/python3.11',
+ '/usr/local/lib/python3.11/lib-dynload',
+ '/venv/lib/python3.11/site-packages']
+
+Server time: 	Fri, 12 Jan 2024 20:32:00 -0300
+
+djangoapp    | 
+djangoapp    | During handling of the above exception, another exception occurred:
+djangoapp    | 
+djangoapp    | Traceback (most recent call last):
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+djangoapp    |     response = get_response(request)
+djangoapp    |                ^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+djangoapp    |     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+djangoapp    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+djangoapp    |     return view_func(*args, **kwargs)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+djangoapp    |     return self.dispatch(request, *args, **kwargs)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+djangoapp    |     response = self.handle_exception(exc)
+djangoapp    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+djangoapp    |     self.raise_uncaught_exception(exc)
+djangoapp    |   File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+djangoapp    |     raise exc
+djangoapp    |   File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+djangoapp    |     response = handler(request, *args, **kwargs)
+djangoapp    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 60, in get
+djangoapp    |     return Response(self.handle_all_params(secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString=True))
+djangoapp    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 97, in handle_all_params
+djangoapp    |     return ScraperUtil.run_scraper_with_all_params(DOU_BASE_URL, secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 103, in run_scraper_with_all_params
+djangoapp    |     return ScraperUtil.run_generic_scraper(url_param, saveInDBFlagURLQueryString)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 17, in run_generic_scraper
+djangoapp    |     response = scraper.get(url_param)
+djangoapp    |                ^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/requests/sessions.py", line 602, in get
+djangoapp    |     return self.request("GET", url, **kwargs)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/cfscrape/__init__.py", line 121, in request
+djangoapp    |     resp = super(CloudflareScraper, self).request(method, url, *args, **kwargs)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+djangoapp    |     resp = self.send(prep, **send_kwargs)
+djangoapp    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+djangoapp    |     r = adapter.send(request, **kwargs)
+djangoapp    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp    |   File "/venv/lib/python3.11/site-packages/requests/adapters.py", line 519, in send
+djangoapp    |     raise ConnectionError(e, request=request)
+djangoapp    | requests.exceptions.ConnectionError: HTTPSConnectionPool(host='www.in.gov.br', port=443): Max retries exceeded with url: /leiturajornal?data=11-01-2024&secao=do2 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f3fc80b4390>: Failed to establish a new connection: [Errno -3] Try again'))
+djangoapp    | [12/Jan/2024 20:32:00] "GET /trigger_web_scraping_dou_api/?data=11-01-2024&secao=do2&saveInDBFlag=true HTTP/1.1" 500 191336
+
+
+
+
+
+
+
+
+	
 
 

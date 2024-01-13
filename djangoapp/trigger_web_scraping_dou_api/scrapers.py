@@ -70,24 +70,37 @@ class ScraperUtil:
     
     
     @staticmethod
-    def run_scraper_with_date(url_param: str, dataURLQueryString_param):
+    def run_scraper_with_date(url_param: str, dataURLQueryString_param, saveInDBFlagURLQueryString : bool):
         
         # Varre todos os DOU da data mencionada no query string param
-            
-        url_param = url_param + "?data=" + dataURLQueryString_param
         
-        return ScraperUtil.run_generic_scraper(url_param, False)
+        # OBS IMPORTANTE: Ao requisitar apenas a data na query string param, o padrão do portal https://www.in.gov.br/leiturajornal    
+        # É retornar apenas o DOU1, então eu tive que implementar a lógica para requisitar os DOU2 e DOU3 
+        # Na mão, ou seja, primeiro ele requisita o DOU1 + data, depois DOU2 + data ....
+            
+        # url_param = url_param + "?data=" + dataURLQueryString_param
+        
+        dou1_with_date = ScraperUtil.run_scraper_with_all_params(url_param, "do1", dataURLQueryString_param, saveInDBFlagURLQueryString)
+        dou2_with_date = ScraperUtil.run_scraper_with_all_params(url_param, "do2", dataURLQueryString_param, saveInDBFlagURLQueryString)
+        dou3_with_date = ScraperUtil.run_scraper_with_all_params(url_param, "do3", dataURLQueryString_param, saveInDBFlagURLQueryString)
+        
+        
+        # Joinner nos 3 jsons dos 3 dou's
+        dou1_with_date.extend(dou2_with_date)
+        dou1_with_date.extend(dou3_with_date)
+        
+        return dou1_with_date
     
     
     
     @staticmethod
-    def run_scraper_with_all_params(url_param: str, secaoURLQueryString_param, dataURLQueryString_param):
+    def run_scraper_with_all_params(url_param: str, secaoURLQueryString_param, dataURLQueryString_param, saveInDBFlagURLQueryString : bool):
         
         # Varre todos os DOU da data mencionada no query string param
             
         url_param = url_param + "?data=" + dataURLQueryString_param + "&secao=" + secaoURLQueryString_param
         
-        return ScraperUtil.run_generic_scraper(url_param, False)
+        return ScraperUtil.run_generic_scraper(url_param, saveInDBFlagURLQueryString)
             
 
 

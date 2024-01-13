@@ -35,8 +35,6 @@ class ScraperViewSet(APIView):
             
             if saveInDBFlagURLQueryString:
                 
-                print("IF DO saveInDBFlagURLQueryString executado!!!!!!!!!")
-                
                 return Response(self.handle_secaoURLQueryString_single_param(secaoURLQueryString, saveInDBFlagURLQueryString=True))
             
             return Response(self.handle_secaoURLQueryString_single_param(secaoURLQueryString, saveInDBFlagURLQueryString=False))
@@ -46,14 +44,22 @@ class ScraperViewSet(APIView):
         elif (URLQueryStringParameterValidator.is_dataURLQueryString_unic(secaoURLQueryString, dataURLQueryString) and \
               URLQueryStringParameterValidator.is_dataURLQueryString_valid(dataURLQueryString)):
                  
-            return Response(self.handle_dataURLQueryString_single_param(dataURLQueryString))
+            if saveInDBFlagURLQueryString:    
+                 
+                return Response(self.handle_dataURLQueryString_single_param(dataURLQueryString, saveInDBFlagURLQueryString=True))
+            
+            return Response(self.handle_dataURLQueryString_single_param(dataURLQueryString, saveInDBFlagURLQueryString=False))
         
         
         # Se ?section= e ?data= foi passado no URL query string param
         elif (URLQueryStringParameterValidator.is_all_params(secaoURLQueryString, dataURLQueryString) and \
               URLQueryStringParameterValidator.is_all_params_valid(secaoURLQueryString, dataURLQueryString)):
                  
-            return Response(self.handle_all_params(secaoURLQueryString, dataURLQueryString))
+            if saveInDBFlagURLQueryString:    
+                 
+                return Response(self.handle_all_params(secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString=True))
+            
+            return Response(self.handle_all_params(secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString=False))
         
         
         return Response("Operação inválida, mais informações no /djangoapp/validators_log.txt")
@@ -79,21 +85,28 @@ class ScraperViewSet(APIView):
     
     # Varre todos os DOU da data mencionada no query string param
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`
-    def handle_dataURLQueryString_single_param(self, dataURLQueryString):
+    def handle_dataURLQueryString_single_param(self, dataURLQueryString, saveInDBFlagURLQueryString):
         
-        return ScraperUtil.run_scraper_with_date(DOU_BASE_URL, dataURLQueryString)
+        return ScraperUtil.run_scraper_with_date(DOU_BASE_URL, dataURLQueryString, saveInDBFlagURLQueryString)
     
     
     # Varre os DOU da seção e data mencionada no query string param
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`&data=`DD-MM-AAAA`
-    def handle_all_params(self, secaoURLQueryString, dataURLQueryString):
+    def handle_all_params(self, secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString):
         
-        return ScraperUtil.run_scraper_with_all_params(DOU_BASE_URL, secaoURLQueryString, dataURLQueryString)
+        return ScraperUtil.run_scraper_with_all_params(DOU_BASE_URL, secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString)
 
 
 
 
+# ENDPOINT PARA A BASE DE DADOS LOCAL DO jsonArray: 
 
+# http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/?page=320
+
+# Obtido no portal https://www.in.gov.br/leiturajornal:
+# scriptTag = document.querySelectorAll("#params")[0]
+# scriptTagTextContent = scriptTag.textContent 
+# var jsonObj = JSON.parse(scriptTagTextContent);
 class JournalJsonArrayOfDOUViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows JsonArrayOfDOU to be viewed or edited.
