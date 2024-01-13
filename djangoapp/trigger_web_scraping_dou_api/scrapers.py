@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import pytz
 
+import re
+
 from trigger_web_scraping_dou_api.services import JournalJsonArrayOfDOUService
 
 
@@ -52,6 +54,71 @@ class ScraperUtil:
             return "Falha na requisição. Código de status: " + response.status_code
     
     
+    @staticmethod
+    def run_detail_single_dou_record_scraper(url_param: str, detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString : bool):
+        
+        
+        url_param = url_param + "/" + detailSingleDOUJournalWithUrlTitleFieldURLQueryString
+        
+        
+        scraper = cfscrape.create_scraper()
+        response = scraper.get(url_param)
+
+        if response.status_code == 200:
+            
+            site_html_str = BeautifulSoup(response.text, "html.parser")
+
+            versao_certificada = site_html_str.find('a', {'id': 'versao-certificada'}).get('href')
+            publicado_dou_data = site_html_str.find('span', {'class': 'publicado-dou-data'}).text
+            edicao_dou_data = site_html_str.find('span', {'class': 'edicao-dou-data'}).text
+            secao_dou_data = site_html_str.find('span', {'class': 'secao-dou-data'}).text
+            orgao_dou_data = site_html_str.find('span', {'class': 'orgao-dou-data'}).text
+            title = site_html_str.find('p', {'class': 'identifica'}).text
+            
+            paragrafos = site_html_str.findAll('p', {'class': 'dou-paragraph'})
+            
+            paragraphs_list = []
+            for paragraph in paragrafos:
+                paragraphs_list.append(paragraph.text)
+            
+            patternAssinaRegex = re.compile(r'.*assina*')
+            signatureAllHierarchy = site_html_str.find_all('p', class_ =patternAssinaRegex)
+            
+            signature_list = []
+            for signature in signatureAllHierarchy:
+                signature_list.append(signature.text)
+
+            # assina = site_html_str.findAll('span', {'class': 'assina'})
+            cargo = site_html_str.find('p', {'class': 'cargo'})
+            
+            # Encontre todas as ocorrências da palavra
+            palavra_procurada = "cargo"
+            
+            if cargo.text is None or cargo.text == "":
+            
+                for tag in site_html_str.find_all():
+                    # Verifica se a palavra está presente no conteúdo de texto, classe ou id da tag
+                    if (
+                        palavra_procurada.lower() in tag.get_text().lower() or
+                        palavra_procurada.lower() in tag.get('class', []) or
+                        palavra_procurada.lower() in tag.get('id', '')
+                    ):
+                        print(f"Palavra encontrada na tag {tag.name}: {tag}")
+                        cargo = tag.text
+                        
+            print("versao_certificada:", versao_certificada)
+            print("publicado_dou_data:", publicado_dou_data)
+            print("edicao_dou_data:", edicao_dou_data)
+            print("secao_dou_data:", secao_dou_data)
+            print("orgao_dou_data:", orgao_dou_data)
+            print("title:", title)
+            print("paragrafos:", paragraphs_list)
+            print("assina:", signature_list)
+            print("cargo:", cargo)
+
+        else:
+            
+            return "Falha na requisição. Código de status: " + response.status_code
     
     @staticmethod
     def run_scraper_with_section(url_param: str, secaoURLQueryString_param, saveInDBFlagURLQueryString : bool):
@@ -120,4 +187,3 @@ class ScraperUtil:
         # return ScraperUtil.run_generic_scraper(new_url)
         
         return "Nenhum jornal postado neste dia!\nPegar dias anteriores recursivamente em desenvolvimento..."
-    

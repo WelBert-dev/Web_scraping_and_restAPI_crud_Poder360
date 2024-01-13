@@ -10,6 +10,7 @@ from trigger_web_scraping_dou_api.models import JournalJsonArrayOfDOU
 import os
 
 DOU_BASE_URL=os.getenv('DOU_BASE_URL', 'https://www.in.gov.br/leiturajornal') 
+DOU_DETAIL_SINGLE_RECORD_URL=os.getenv('DOU_DETAIL_SINGLE_RECORD_URL', 'https://www.in.gov.br/en/web/dou/-/') 
 
 class ScraperViewSet(APIView):
     def get(self, request):
@@ -17,10 +18,13 @@ class ScraperViewSet(APIView):
         dataURLQueryString = request.GET.get('data')
         
         saveInDBFlagURLQueryString = request.GET.get('saveInDBFlag')
+        
+        detailSingleDOUJournalWithUrlTitleFieldURLQueryString = request.GET.get('detailSingleDOUJournalWithUrlTitleField')
 
+        print("detailSingleDOUJournalWithUrlTitleFieldURLQueryString: ", detailSingleDOUJournalWithUrlTitleFieldURLQueryString)
 
         # Se não existem parâmetros
-        if URLQueryStringParameterValidator.is_empty_params(secaoURLQueryString, dataURLQueryString):
+        if URLQueryStringParameterValidator.is_empty_params(secaoURLQueryString, dataURLQueryString, detailSingleDOUJournalWithUrlTitleFieldURLQueryString):
             
             if saveInDBFlagURLQueryString:
 
@@ -43,7 +47,7 @@ class ScraperViewSet(APIView):
         # Se ?data= foi passado no URL query string param
         elif (URLQueryStringParameterValidator.is_dataURLQueryString_unic(secaoURLQueryString, dataURLQueryString) and \
               URLQueryStringParameterValidator.is_dataURLQueryString_valid(dataURLQueryString)):
-                 
+            
             if saveInDBFlagURLQueryString:    
                  
                 return Response(self.handle_dataURLQueryString_single_param(dataURLQueryString, saveInDBFlagURLQueryString=True))
@@ -54,13 +58,24 @@ class ScraperViewSet(APIView):
         # Se ?section= e ?data= foi passado no URL query string param
         elif (URLQueryStringParameterValidator.is_all_params(secaoURLQueryString, dataURLQueryString) and \
               URLQueryStringParameterValidator.is_all_params_valid(secaoURLQueryString, dataURLQueryString)):
-                 
+            
             if saveInDBFlagURLQueryString:    
                  
                 return Response(self.handle_all_params(secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString=True))
             
             return Response(self.handle_all_params(secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString=False))
         
+        
+        
+        # Se ?detailSingleDOUJournalWithUrlTitleField= foi passado no URL query string param
+        elif (URLQueryStringParameterValidator.is_urlTitleOfSingleDOUJournalURLQueryString_unic(detailSingleDOUJournalWithUrlTitleFieldURLQueryString, secaoURLQueryString, dataURLQueryString) and \
+              URLQueryStringParameterValidator.is_urlTitleOfSingleDOUJournalURLQueryString_valid(detailSingleDOUJournalWithUrlTitleFieldURLQueryString)):
+            
+            if saveInDBFlagURLQueryString:    
+                 
+                return Response(self.handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString=True))
+            
+            return Response(self.handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString=False))
         
         return Response("Operação inválida, mais informações no /djangoapp/validators_log.txt")
     
@@ -95,6 +110,13 @@ class ScraperViewSet(APIView):
     def handle_all_params(self, secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString):
         
         return ScraperUtil.run_scraper_with_all_params(DOU_BASE_URL, secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString)
+    
+    
+    # Detalha o single record do DOU utilizando o urlTitle mencionado no query string param
+    # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`&data=`DD-MM-AAAA`
+    def handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(self, detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString):
+        
+        return ScraperUtil.run_detail_single_dou_record_scraper(DOU_DETAIL_SINGLE_RECORD_URL, detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString)
 
 
 

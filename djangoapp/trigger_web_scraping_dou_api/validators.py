@@ -16,9 +16,9 @@ class URLQueryStringParameterValidator:
     logger = logging.getLogger("URLQueryStringParameterValidator")
     
     @staticmethod
-    def is_empty_params(secaoURLQueryString : str, dataURLQueryString : str):
+    def is_empty_params(secaoURLQueryString : str, dataURLQueryString : str, detailSingleDOUJournalWithUrlTitleFieldURLQueryString : str):
 
-        return ( secaoURLQueryString is None and dataURLQueryString is None )
+        return ( secaoURLQueryString is None and dataURLQueryString is None and detailSingleDOUJournalWithUrlTitleFieldURLQueryString is None)
     
     @staticmethod
     def is_secaoURLQueryString_unic(secaoURLQueryString : str, dataURLQueryString : str):
@@ -60,7 +60,18 @@ class URLQueryStringParameterValidator:
         
         return URLQueryStringParameterValidator.is_secaoURLQueryString_valid(secaoURLQueryString) and \
                URLQueryStringParameterValidator.is_dataURLQueryString_valid(dataURLQueryString)
-               
+        
+
+    @staticmethod
+    def is_urlTitleOfSingleDOUJournalURLQueryString_unic(urlTitleOfSingleDOUJournalURLQueryString : str, secaoURLQueryString : str, dataURLQueryString : str):
+        
+        return ( urlTitleOfSingleDOUJournalURLQueryString is not None and (secaoURLQueryString is None and dataURLQueryString  is None ))
+    
+    
+    @staticmethod
+    def is_urlTitleOfSingleDOUJournalURLQueryString_valid(urlTitleOfSingleDOUJournalURLQueryString : str):
+           
+        return urlTitleOfSingleDOUJournalURLQueryString != "" and urlTitleOfSingleDOUJournalURLQueryString is not None        
                
                
                

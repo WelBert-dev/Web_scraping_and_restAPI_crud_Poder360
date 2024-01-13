@@ -1368,12 +1368,13 @@ djangoapp    | requests.exceptions.ConnectionError: HTTPSConnectionPool(host='ww
 djangoapp    | [12/Jan/2024 20:32:00] "GET /trigger_web_scraping_dou_api/?data=11-01-2024&secao=do2&saveInDBFlag=true HTTP/1.1" 500 191336
 
 
+-------------------------------------------------------------------------------------------------------------------------------
 
+19o - Começa endpoint para mais detalhamento de cada registro DOU com 'https://www.in.gov.br/en/web/dou/-/' + `urlTitle`
 
+ConnectionError at /trigger_web_scraping_dou_api/
 
-
-
-
+HTTPSConnectionPool(host='www.in.gov.br', port=443): Max retries exceeded with url: /en/web/dou/-//portaria-mds-n-952-de-29-de-dezembro-de-2023-535301404 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7eff19139e90>: Failed to establish a new connection: [Errno -5] Name has no usable address'))
 	
 
 
