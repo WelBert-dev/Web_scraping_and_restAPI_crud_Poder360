@@ -75,6 +75,7 @@ class ScraperViewSet(APIView):
             if saveInDBFlagURLQueryString:    
                  
                 return self.handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString=True)
+            
             return self.handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString=False)
         
         return Response("Operação inválida, mais informações no /djangoapp/validators_log.txt")
@@ -96,13 +97,11 @@ class ScraperViewSet(APIView):
             
             return Response(response, status=status.HTTP_404_NOT_FOUND)
         
-        
         elif 'error_in_dou_server_side' in response:
             
             return Response(response, status=status.HTTP_500_BAD_REQUEST)
         
         return Response(response)
-
 
     # Varre tudo da home do https://www.in.gov.br/leiturajornal
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
@@ -146,7 +145,11 @@ class ScraperViewSet(APIView):
         
         response = ScraperUtil.run_detail_single_dou_record_scraper(DOU_DETAIL_SINGLE_RECORD_URL, detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString)
         
-        return self.handle_response(response)
+        if 'error_in_dou_server_side' in response:
+            
+            return Response(response, status=status.HTTP_500_BAD_REQUEST)
+        
+        return Response(response)
 
 
 

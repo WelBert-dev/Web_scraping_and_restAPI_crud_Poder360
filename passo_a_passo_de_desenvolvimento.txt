@@ -1376,5 +1376,20 @@ ConnectionError at /trigger_web_scraping_dou_api/
 
 HTTPSConnectionPool(host='www.in.gov.br', port=443): Max retries exceeded with url: /en/web/dou/-//portaria-mds-n-952-de-29-de-dezembro-de-2023-535301404 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7eff19139e90>: Failed to establish a new connection: [Errno -5] Name has no usable address'))
 	
+	
+-------------------------------------------------------------------------------------------------------------------------------	
 
+20o - Finaliza endpoint para mais detalhamento de cada registro DOU com 'https://www.in.gov.br/en/web/dou/-/' + `urlTitle`
+
+- Obs: Utilizando como exemplo o próprio registro demonstrativo enviado no E-mail do desafio.
+
+	https://www.in.gov.br/en/web/dou/-/acordao-cofen-n-103-de-27-de-setembro-de-2022-459835961	
+
+	Versão certificada: https://pesquisa.in.gov.br/imprensa/jsp/visualiza/index.jsp?data=25/01/2023&jornal=515&pagina=62
+
+Endpoint:
+	
+	Busca detalhes de um registro e retorna no padrão solicitado no E-mail: (SEM SALVAR EM BANCO)
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailSingleDOUJournalWithUrlTitleField=acordao-cofen-n-103-de-27-de-setembro-de-2022-459835961
 

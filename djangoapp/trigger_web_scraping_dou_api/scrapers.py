@@ -59,9 +59,7 @@ class ScraperUtil:
     @staticmethod
     def run_detail_single_dou_record_scraper(url_param: str, detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString : bool):
         
-        
         url_param = url_param + "/" + detailSingleDOUJournalWithUrlTitleFieldURLQueryString
-        
         
         scraper = cfscrape.create_scraper()
         response = scraper.get(url_param)
@@ -70,57 +68,87 @@ class ScraperUtil:
             
             site_html_str = BeautifulSoup(response.text, "html.parser")
 
-            versao_certificada = site_html_str.find('a', {'id': 'versao-certificada'}).get('href')
-            publicado_dou_data = site_html_str.find('span', {'class': 'publicado-dou-data'}).text
-            edicao_dou_data = site_html_str.find('span', {'class': 'edicao-dou-data'}).text
-            secao_dou_data = site_html_str.find('span', {'class': 'secao-dou-data'}).text
-            orgao_dou_data = site_html_str.find('span', {'class': 'orgao-dou-data'}).text
-            title = site_html_str.find('p', {'class': 'identifica'}).text
+            
+            versao_certificada = site_html_str.find('a', {'id': 'versao-certificada'})
+            if versao_certificada:
+                versao_certificada = versao_certificada.get('href')
+                
+            publicado_dou_data = site_html_str.find('span', {'class': 'publicado-dou-data'})
+            if publicado_dou_data:
+                publicado_dou_data = publicado_dou_data.text
+            
+            edicao_dou_data = site_html_str.find('span', {'class': 'edicao-dou-data'})
+            if edicao_dou_data:
+                edicao_dou_data = edicao_dou_data.text
+                
+            secao_dou_data = site_html_str.find('span', {'class': 'secao-dou-data'})
+            if secao_dou_data:
+                secao_dou_data = secao_dou_data.text
+            
+            orgao_dou_data = site_html_str.find('span', {'class': 'orgao-dou-data'})
+            if orgao_dou_data:
+                orgao_dou_data = orgao_dou_data.text
+            
+            title = site_html_str.find('p', {'class': 'identifica'})
+            if title:
+                title = title.text
             
             paragrafos = site_html_str.findAll('p', {'class': 'dou-paragraph'})
             
             paragraphs_list = []
-            for paragraph in paragrafos:
-                paragraphs_list.append(paragraph.text)
             
-            patternAssinaRegex = re.compile(r'.*assina*')
-            signatureAllHierarchy = site_html_str.find_all('p', class_ =patternAssinaRegex)
+            if paragrafos:
+                
+                for paragraph in paragrafos:
+                    paragraphs_list.append(paragraph.text)
             
-            signature_list = []
-            for signature in signatureAllHierarchy:
-                signature_list.append(signature.text)
+            # patternAssinaRegex = re.compile(r'.*assina*')
+            # signatureAllHierarchy = site_html_str.find_all('p', class_ =patternAssinaRegex)
+            
+            # signature_list = []
+            # for signature in signatureAllHierarchy:
+            #     signature_list.append(signature.text)
+            
+            assina = site_html_str.find('p', {'class': 'assina'})
+            if assina:
+                assina = assina.text
 
             # assina = site_html_str.findAll('span', {'class': 'assina'})
             cargo = site_html_str.find('p', {'class': 'cargo'})
-            
-            # Encontre todas as ocorrências da palavra
-            palavra_procurada = "cargo"
-            
-            if cargo.text is None or cargo.text == "":
-            
+
+            if cargo is None or not cargo:
+                palavra_procurada = "cargo"
                 for tag in site_html_str.find_all():
                     # Verifica se a palavra está presente no conteúdo de texto, classe ou id da tag
+                    # Varrendo todo o documento html
                     if (
                         palavra_procurada.lower() in tag.get_text().lower() or
                         palavra_procurada.lower() in tag.get('class', []) or
                         palavra_procurada.lower() in tag.get('id', '')
                     ):
                         print(f"Palavra encontrada na tag {tag.name}: {tag}")
-                        cargo = tag.text
+                        cargo = str(cargo) + "Cargo nullo, mas no documento consta a seguinte ocorrência que menciona a palavra 'cargo': " + tag.text
                         
-            print("versao_certificada:", versao_certificada)
-            print("publicado_dou_data:", publicado_dou_data)
-            print("edicao_dou_data:", edicao_dou_data)
-            print("secao_dou_data:", secao_dou_data)
-            print("orgao_dou_data:", orgao_dou_data)
-            print("title:", title)
-            print("paragrafos:", paragraphs_list)
-            print("assina:", signature_list)
-            print("cargo:", cargo)
+                    else:
+                        cargo = "Nenhum cargo identificado para este campo, e nenhuma menção da palavra 'cargo' no documento html!"
+            else:
+                cargo = cargo.text  
+            
+            return ({"versao_certificada":versao_certificada, 
+                     "publicado_dou_data":publicado_dou_data,
+                     "edicao_dou_data":edicao_dou_data,
+                     "secao_dou_data":secao_dou_data,
+                     "orgao_dou_data":orgao_dou_data,
+                     "title":title,
+                     "paragrafos":paragraphs_list,
+                     "assina":assina,
+                     "cargo":cargo})
 
         else:
             
-            return "Falha na requisição. Código de status: " + response.status_code
+            return ({"error_in_dou_server_side":response.text, "status_code":response.status_code, "response_obj":response})
+    
+    
     
     @staticmethod
     def run_scraper_with_section(url_param: str, secaoURLQueryString_param, saveInDBFlagURLQueryString : bool):
