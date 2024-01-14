@@ -31,23 +31,30 @@ class ScraperViewSet(APIView):
         detailDOUJournalFlag = request.GET.get('detailDOUJournalFlag')
 
         # Se não existem parâmetros
+        # Lembrando que se trata dos parâmetros: secaoURLQueryString, dataURLQueryString e detailSingleDOUJournalWithUrlTitleFieldURLQueryString
+        # NÃO se trata das flags: saveInDBFlagURLQueryString e detailDOUJournalFlag.
+        # Essas flags modificam o comportamento desses handlers abaixo.
         if URLQueryStringParameterValidator.is_empty_params(secaoURLQueryString, 
                                                             dataURLQueryString, 
                                                             detailSingleDOUJournalWithUrlTitleFieldURLQueryString):
             
             if saveInDBFlagURLQueryString and detailDOUJournalFlag is None:
                 
+                # Varre a home do DOU sem detalhar cada registro e SALVA no final
                 return self.handle_URL_empty_params(saveInDBFlagURLQueryString=True, detailDOUJournalFlag=False)
             
             elif detailDOUJournalFlag and saveInDBFlagURLQueryString is None:
                 
+                # Varre a home do DOU e DETALHA cada registro e NÃO salva no final
                 return self.handle_URL_empty_params(saveInDBFlagURLQueryString=False, detailDOUJournalFlag=True)
             
             elif saveInDBFlagURLQueryString and detailDOUJournalFlag:
                 
+                # Flags TODAS estão presentes, varre a home do DOU e DETALHA cada registro SALVANDO no final
                 return self.handle_URL_empty_params(saveInDBFlagURLQueryString=True, detailDOUJournalFlag=True)
             
             
+            # Flags NÃO estão presentes, varre a home do DOU sem detalhar cada registro e NÃO salva no final
             return self.handle_URL_empty_params(saveInDBFlagURLQueryString=False, detailDOUJournalFlag=False)
             
 
@@ -131,8 +138,16 @@ class ScraperViewSet(APIView):
         
         return Response(response)
 
+
     # Varre tudo da home do https://www.in.gov.br/leiturajornal
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
+    
+    # Varre tudo da home do https://www.in.gov.br/leiturajornal e detalha todos dou do dia
+    # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True
+    
+    # Obs: POR ENQUANTO ESTA APLICANDO APENAS PARA A SEÇÂO DO1!
+    # Pois quando não passa parâmetros na URL do portal do DOU trás apenas o do1... 
+    # Para testes por enquanto vou manter assim, pois é mais rápido para raspagem, mas vou corrigir jaja
     def handle_URL_empty_params(self, saveInDBFlagURLQueryString, detailDOUJournalFlag):
         
         
@@ -152,8 +167,6 @@ class ScraperViewSet(APIView):
         response = ScraperUtil.run_generic_scraper(new_url, saveInDBFlagURLQueryString)
         
         if detailDOUJournalFlag:
-
-            # Itera sobre cada objeto JSON na lista
             
             response_json_with_all = []
             
