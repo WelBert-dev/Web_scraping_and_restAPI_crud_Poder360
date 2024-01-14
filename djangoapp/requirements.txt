@@ -5,3 +5,5 @@ djangorestframework
 urllib3==1.26.7
 beautifulsoup4
 cfscrape
+
+django-debug-toolbar

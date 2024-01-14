@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'hello_world',
     'hello_world_api',
     'trigger_web_scraping_dou_api',
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -116,6 +118,23 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
+
+
+
+# Configurações para monitoramento de recursos de hardware com django-debug-toolbar 
+
+if DEBUG:
+    # Configurações para o monitor de recursos django-debug-toolbar 
+    INTERNAL_IPS = [
+        '127.0.0.1',  # Adicione o endereço IP da máquina local
+        '192.168.1.2',  # Adicione outros endereços IP internos, se necessário
+    ]
+    
+    # Configurações para o monitor de recursos django-debug-toolbar em ambientes dockernized:
+    import socket  # only if you haven't already imported this
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
+    
 
 
 # Internationalization
