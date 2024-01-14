@@ -17,13 +17,20 @@ class URLQueryStringParameterValidator:
     
     @staticmethod
     def is_empty_params(secaoURLQueryString : str, dataURLQueryString : str, detailSingleDOUJournalWithUrlTitleFieldURLQueryString : str):
-
+        
         return ( secaoURLQueryString is None and dataURLQueryString is None and detailSingleDOUJournalWithUrlTitleFieldURLQueryString is None)
+    
+    # @staticmethod
+    # def is_empty_params(*params):
+        
+    #     return all(param is None for param in params)
+    
     
     @staticmethod
     def is_secaoURLQueryString_unic(secaoURLQueryString : str, dataURLQueryString : str):
         
         return ( secaoURLQueryString is not None and dataURLQueryString is None )
+
 
     @staticmethod
     def is_secaoURLQueryString_valid(secaoURLQueryString : str):
@@ -50,13 +57,13 @@ class URLQueryStringParameterValidator:
     
     
     @staticmethod
-    def is_all_params(secaoURLQueryString : str, dataURLQueryString : str):
+    def is_secaoURLQueryString_and_dataURLQueryString_params(secaoURLQueryString : str, dataURLQueryString : str):
         
         return ( secaoURLQueryString is not None and dataURLQueryString is not None )
     
     
     @staticmethod
-    def is_all_params_valid(secaoURLQueryString : str, dataURLQueryString : str):
+    def is_secaoURLQueryString_and_dataURLQueryString_valid(secaoURLQueryString : str, dataURLQueryString : str):
         
         return URLQueryStringParameterValidator.is_secaoURLQueryString_valid(secaoURLQueryString) and \
                URLQueryStringParameterValidator.is_dataURLQueryString_valid(dataURLQueryString)

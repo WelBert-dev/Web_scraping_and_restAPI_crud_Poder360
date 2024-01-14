@@ -55,9 +55,10 @@ class ScraperUtil:
             
             return ({"error_in_dou_server_side":response.text, "status_code":response.status_code, "response_obj":response})
     
+        
     
     @staticmethod
-    def run_detail_single_dou_record_scraper(url_param: str, detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString : bool):
+    def run_detail_single_dou_record_scraper(url_param: str, detailSingleDOUJournalWithUrlTitleFieldURLQueryString):
         
         url_param = url_param + "/" + detailSingleDOUJournalWithUrlTitleFieldURLQueryString
         
@@ -117,20 +118,23 @@ class ScraperUtil:
             cargo = site_html_str.find('p', {'class': 'cargo'})
 
             if cargo is None or not cargo:
-                palavra_procurada = "cargo"
-                for tag in site_html_str.find_all():
-                    # Verifica se a palavra está presente no conteúdo de texto, classe ou id da tag
-                    # Varrendo todo o documento html
-                    if (
-                        palavra_procurada.lower() in tag.get_text().lower() or
-                        palavra_procurada.lower() in tag.get('class', []) or
-                        palavra_procurada.lower() in tag.get('id', '')
-                    ):
-                        print(f"Palavra encontrada na tag {tag.name}: {tag}")
-                        cargo = str(cargo) + "Cargo nullo, mas no documento consta a seguinte ocorrência que menciona a palavra 'cargo': " + tag.text
+                # palavra_procurada = "cargo"
+                # for tag in site_html_str.find_all():
+                #     # Verifica se a palavra está presente no conteúdo de texto, classe ou id da tag
+                #     # Varrendo todo o documento html
+                #     if (
+                #         palavra_procurada.lower() in tag.get_text().lower() or
+                #         palavra_procurada.lower() in tag.get('class', []) or
+                #         palavra_procurada.lower() in tag.get('id', '')
+                #     ):
+                #         print(f"Palavra encontrada na tag {tag.name}: {tag}")
+                #         cargo = str(cargo) + "Cargo nullo, mas no documento consta a seguinte ocorrência que menciona a palavra 'cargo': " + tag.text
                         
-                    else:
-                        cargo = "Nenhum cargo identificado para este campo, e nenhuma menção da palavra 'cargo' no documento html!"
+                #     else:
+                #         cargo = "Nenhum cargo identificado para este campo, e nenhuma menção da palavra 'cargo' no documento html!"
+                
+                cargo = "Nenhum cargo identificado para este campo"
+            
             else:
                 cargo = cargo.text  
             
