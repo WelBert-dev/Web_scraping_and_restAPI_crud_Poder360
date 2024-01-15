@@ -1392,4 +1392,23 @@ Endpoint:
 	Busca detalhes de um registro e retorna no padrão solicitado no E-mail: (SEM SALVAR EM BANCO)
 	
 	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailSingleDOUJournalWithUrlTitleField=acordao-cofen-n-103-de-27-de-setembro-de-2022-459835961
+	
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'lei-n-14.802-de-10-de-janeiro-de-2024-anexo-537017145';
+	
+	
+-------------------------------------------------------------------------------------------------------------------------------
+
+21o - Otimização da performance com uso de paralelismo em pontos críticos:
+	
+	- GET ALL: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True
+	
+	- ANTES o get all de todos os dous do dia com detalhamento de cada registro (jornal) demorava 6 minutos (executando em fluxo sincrono). 
+	
+	- AGORA OTIMIZADO demora menos da metade.
+
+
+- Obs: Durante os testes, eu tive que mockar a data para quinta feira "11-01-2024", pois final de semana não teve registros de nenhum jornal. MAS retirei o mock na hora do commit, o get all ou outras rotas sem passar parâmetro de data consideram o dia atual.	
+
+
+
 

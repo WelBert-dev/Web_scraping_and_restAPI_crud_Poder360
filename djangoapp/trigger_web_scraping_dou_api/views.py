@@ -9,15 +9,8 @@ from .validators import URLQueryStringParameterValidator
 from trigger_web_scraping_dou_api.serializers import JournalJsonArrayOfDOUSerializer
 from trigger_web_scraping_dou_api.models import JournalJsonArrayOfDOU
 
-import os
-
 from datetime import datetime, timedelta
 import pytz
-
-import json
-
-DOU_BASE_URL=os.getenv('DOU_BASE_URL', 'https://www.in.gov.br/leiturajornal') 
-DOU_DETAIL_SINGLE_RECORD_URL=os.getenv('DOU_DETAIL_SINGLE_RECORD_URL', 'https://www.in.gov.br/en/web/dou/-/') 
 
 class ScraperViewSet(APIView):
     def get(self, request):
@@ -41,6 +34,7 @@ class ScraperViewSet(APIView):
             if saveInDBFlagURLQueryString and detailDOUJournalFlag is None:
                 
                 # Varre a home do DOU sem detalhar cada registro e SALVA no final
+                
                 return self.handle_URL_empty_params(saveInDBFlagURLQueryString=True, detailDOUJournalFlag=False)
             
             elif detailDOUJournalFlag and saveInDBFlagURLQueryString is None:
@@ -51,7 +45,8 @@ class ScraperViewSet(APIView):
             elif saveInDBFlagURLQueryString and detailDOUJournalFlag:
                 
                 # Flags TODAS estão presentes, varre a home do DOU e DETALHA cada registro SALVANDO no final
-                return self.handle_URL_empty_params(saveInDBFlagURLQueryString=True, detailDOUJournalFlag=True)
+                
+                return self.handle_response({'error_in_our_server_side':'Funcionalidade não implementada por conta do volume de dados!! mas o get all sem detalhamento possue essa featured! ;D', 'BUT':'MASSS nada me empede de implementar essa funcionalidade ai com vocês rsrs... vamos solucionar problemas aplicando tecnologia juntos? ^^'})
             
             
             # Flags NÃO estão presentes, varre a home do DOU sem detalhar cada registro e NÃO salva no final
@@ -105,13 +100,7 @@ class ScraperViewSet(APIView):
                                                                                                 dataURLQueryString) and \
               URLQueryStringParameterValidator.is_urlTitleOfSingleDOUJournalURLQueryString_valid(detailSingleDOUJournalWithUrlTitleFieldURLQueryString)):
             
-            if saveInDBFlagURLQueryString:    
-                 
-                return self.handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(detailSingleDOUJournalWithUrlTitleFieldURLQueryString, 
-                                                                                               saveInDBFlagURLQueryString=True)
-            
-            return self.handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(detailSingleDOUJournalWithUrlTitleFieldURLQueryString, 
-                                                                                           saveInDBFlagURLQueryString=False)
+            return self.handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(detailSingleDOUJournalWithUrlTitleFieldURLQueryString)
         
         return Response("Operação inválida, mais informações no /djangoapp/validators_log.txt")
     
@@ -150,37 +139,7 @@ class ScraperViewSet(APIView):
     # Para testes por enquanto vou manter assim, pois é mais rápido para raspagem, mas vou corrigir jaja
     def handle_URL_empty_params(self, saveInDBFlagURLQueryString, detailDOUJournalFlag):
         
-        
-        # Nenhuma matéria postada no dia atual, pega o dia anterior... 
-        # Ou seja, MOCK por enquanto...
-        date_utc_now = datetime.utcnow()
-        saopaulo_tz = pytz.timezone('America/Sao_Paulo')
-        date_sp_now = date_utc_now.replace(tzinfo=pytz.utc).astimezone(saopaulo_tz)
-        date_sp_now_minus_one_day = date_sp_now - timedelta(days=2)
-        date_sp_now_minus_one_day_formated_db_pattern = date_sp_now_minus_one_day.strftime("%d-%m-%Y")
-
-        # Modifica a URL para apontar para o dia anterior
-        new_url = DOU_BASE_URL + "?data="+date_sp_now_minus_one_day_formated_db_pattern      
-        
-        print(new_url)
-        
-        response = ScraperUtil.run_generic_scraper(new_url, saveInDBFlagURLQueryString)
-        
-        if detailDOUJournalFlag:
-            
-            response_json_with_all = []
-            
-            for obj in response:
-                # Tenta extrair o valor da chave 'urlTitle' e adicioná-lo à lista
-                url_title = obj.get("urlTitle")
-                if url_title is not None:
-                    
-                    response_json_with_all.append(ScraperUtil.run_detail_single_dou_record_scraper(DOU_DETAIL_SINGLE_RECORD_URL, url_title))
-            
-            print(response_json_with_all)
-            
-            return self.handle_response(response_json_with_all)
-             
+        response = ScraperUtil.run_scraper_with_empty_params(saveInDBFlagURLQueryString, detailDOUJournalFlag)
         
         return self.handle_response(response)
 
@@ -189,7 +148,7 @@ class ScraperViewSet(APIView):
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`
     def handle_secaoURLQueryString_single_param(self, secaoURLQueryString_param, saveInDBFlagURLQueryString):
         
-        response = ScraperUtil.run_scraper_with_section(DOU_BASE_URL, secaoURLQueryString_param, saveInDBFlagURLQueryString)
+        response = ScraperUtil.run_scraper_with_section(secaoURLQueryString_param, saveInDBFlagURLQueryString)
         
         return self.handle_response(response)
     
@@ -198,7 +157,7 @@ class ScraperViewSet(APIView):
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=`DD-MM-AAAA`
     def handle_dataURLQueryString_single_param(self, dataURLQueryString, saveInDBFlagURLQueryString):
         
-        response = ScraperUtil.run_scraper_with_date(DOU_BASE_URL, dataURLQueryString, saveInDBFlagURLQueryString)
+        response = ScraperUtil.run_scraper_with_date(dataURLQueryString, saveInDBFlagURLQueryString)
         
         return self.handle_response(response) 
     
@@ -207,16 +166,16 @@ class ScraperViewSet(APIView):
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`&data=`DD-MM-AAAA`
     def handle_secaoURLQueryString_and_dataURLQueryString_params(self, secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString):
         
-        response = ScraperUtil.run_scraper_with_all_params(DOU_BASE_URL, secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString)
+        response = ScraperUtil.run_scraper_with_all_params(secaoURLQueryString, dataURLQueryString, saveInDBFlagURLQueryString)
 
         return self.handle_response(response)
     
     
     # Detalha o single record do DOU utilizando o urlTitle mencionado no query string param
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`&data=`DD-MM-AAAA`
-    def handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(self, detailSingleDOUJournalWithUrlTitleFieldURLQueryString, saveInDBFlagURLQueryString):
+    def handle_detailSingleDOUJournalWithUrlTitleFieldURLQueryString_param(self, detailSingleDOUJournalWithUrlTitleFieldURLQueryString):
         
-        response = ScraperUtil.run_detail_single_dou_record_scraper(DOU_DETAIL_SINGLE_RECORD_URL, detailSingleDOUJournalWithUrlTitleFieldURLQueryString)
+        response = ScraperUtil.run_detail_single_dou_record_scraper(detailSingleDOUJournalWithUrlTitleFieldURLQueryString)
         
         if 'error_in_dou_server_side' in response:
             
