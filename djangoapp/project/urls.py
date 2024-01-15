@@ -22,19 +22,15 @@ from django.urls import include, path
 
 from rest_framework import routers
 
-from hello_world_api.views import JsonArrayOfDOUViewSet
 from trigger_web_scraping_dou_api.views import ScraperViewSet
 from trigger_web_scraping_dou_api.views import JournalJsonArrayOfDOUViewSet
 
 
 router = routers.DefaultRouter()
-# router.register(r'jsonarrayofdou', JsonArrayOfDOUViewSet)
 router.register(r'journaljsonarrayofdouviewset', JournalJsonArrayOfDOUViewSet)
 
 urlpatterns = [
-    path('', include('hello_world.urls')),
     path('admin/', admin.site.urls),
-    # path('api/', include(router.urls)),
     path('trigger_web_scraping_dou_api/', ScraperViewSet.as_view(), name='scraperviewset'),
     path('db_dou_api/', include(router.urls)),
 ]

@@ -177,11 +177,7 @@ class ScraperViewSet(APIView):
         
         response = ScraperUtil.run_detail_single_dou_record_scraper(detailSingleDOUJournalWithUrlTitleFieldURLQueryString)
         
-        if 'error_in_dou_server_side' in response:
-            
-            return Response(response, status=status.HTTP_500_BAD_REQUEST)
-        
-        return Response(response)
+        return self.handle_response(response)
 
 
 

@@ -41,8 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'hello_world',
-    'hello_world_api',
     'trigger_web_scraping_dou_api',
     'rest_framework',
 ]
