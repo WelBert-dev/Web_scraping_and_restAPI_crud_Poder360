@@ -1,0 +1,211 @@
+import json
+import cfscrape
+from bs4 import BeautifulSoup
+
+import os
+
+import logging
+
+import asyncio
+
+from aiocfscrape import CloudflareScraper
+
+from trigger_web_scraping_dou_api.utils import DateUtil
+
+log_path = os.path.join(os.environ.get('LOG_DIR', '.'), 'scrapers_api2_djangoappclonetwo_log.txt')
+
+logging.basicConfig(filename=log_path, level=logging.ERROR,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+
+DOU_BASE_URL=os.getenv('DOU_BASE_URL', 'https://www.in.gov.br/leiturajornal') 
+DOU_DETAIL_SINGLE_RECORD_URL=os.getenv('DOU_DETAIL_SINGLE_RECORD_URL', 'https://www.in.gov.br/en/web/dou/-/') 
+
+
+class ScraperUtil:
+    
+    logger = logging.getLogger("ScraperUtil")
+    
+    @staticmethod
+    async def make_request_cloudflare_bypass_async(url):
+        async with CloudflareScraper() as session:
+            async with session.get(url) as resp:
+                return await resp.text()
+            
+            
+    
+    @staticmethod
+    def run_scraper_with_section_and_details_the_dous(secaoURLQueryString_param):
+        
+        # Todos argumentos presentes, Varre os DOU da seção mencionada no query string param, na data atual
+        
+        date_now_db_and_brazilian_format = DateUtil.get_current_date_db_and_brazilian_format()
+        
+        url_param = DOU_BASE_URL + "?data=" + date_now_db_and_brazilian_format + "&secao=" + secaoURLQueryString_param
+        
+        # Aqui não compensa utilizar paralelismo ou async, pois é apenas uma chamada para para a página secao=do1
+        dou_dontDetails_list = ScraperUtil.run_dontDetailsPage_scraper(url_param)
+    
+        urls_title_list = []
+        for url in dou_dontDetails_list:
+            for key, value in url.items():
+                if key == 'urlTitle':
+                    urls_title_list.append(value)
+
+        
+        return ScraperUtil.run_detail_single_dou_record_scraper_using_event_loop(urls_title_list)
+    
+    
+    
+    @staticmethod
+    async def run_beautifulSoup_into_detailsPage_async(response):
+        
+        site_html_str = BeautifulSoup(response, "html.parser")
+
+            
+        versao_certificada = site_html_str.find('a', {'id': 'versao-certificada'})
+        if versao_certificada:
+            versao_certificada = versao_certificada.get('href')
+            
+        publicado_dou_data = site_html_str.find('span', {'class': 'publicado-dou-data'})
+        if publicado_dou_data:
+            publicado_dou_data = publicado_dou_data.text
+        
+        edicao_dou_data = site_html_str.find('span', {'class': 'edicao-dou-data'})
+        if edicao_dou_data:
+            edicao_dou_data = edicao_dou_data.text
+            
+        secao_dou_data = site_html_str.find('span', {'class': 'secao-dou-data'})
+        if secao_dou_data:
+            secao_dou_data = secao_dou_data.text
+        
+        orgao_dou_data = site_html_str.find('span', {'class': 'orgao-dou-data'})
+        if orgao_dou_data:
+            orgao_dou_data = orgao_dou_data.text
+        
+        title = site_html_str.find('p', {'class': 'identifica'})
+        if title:
+            title = title.text
+        
+        paragrafos = site_html_str.findAll('p', {'class': 'dou-paragraph'})
+        paragraphs_list = []
+        if paragrafos:
+            for paragraph in paragrafos:
+                if paragraph != "":
+                    paragraphs_list.append(paragraph.text)
+        
+        assina = site_html_str.find('p', {'class': 'assina'})
+        if assina:
+            assina = assina.text
+
+        # assina = site_html_str.findAll('span', {'class': 'assina'})
+        cargo = site_html_str.find('p', {'class': 'cargo'})
+
+        if cargo is None or not cargo or cargo == "":
+            cargo = "Nenhum cargo identificado para este campo"
+        
+        else:
+            cargo = cargo.text  
+        
+        return ({"versao_certificada":versao_certificada, 
+                    "publicado_dou_data":publicado_dou_data,
+                    "edicao_dou_data":edicao_dou_data,
+                    "secao_dou_data":secao_dou_data,
+                    "orgao_dou_data":orgao_dou_data,
+                    "title":title,
+                    "paragrafos":paragraphs_list,
+                    "assina":assina,
+                    "cargo":cargo})
+         
+
+
+    @staticmethod
+    async def make_request_to_dou_journal_moreDetail_and_scraping_async_task(url_tile):
+        try:
+            
+            url_param = DOU_DETAIL_SINGLE_RECORD_URL + url_tile
+            response = await ScraperUtil.make_request_cloudflare_bypass_async(url_param)
+            
+            print("Executando raspagem no: " + url_tile + "...")
+    
+            result_json = await ScraperUtil.run_beautifulSoup_into_detailsPage_async(response)
+        
+            return result_json   
+            
+        except Exception as e:
+            
+            ScraperUtil.logger.error('make_request_to_dou_journal_moreDetail_and_scraping_async: Erro: ' + str(e))
+
+            return f"ERROR NA CHAMADA PARA: {url_tile}, {str(e)}"
+        
+
+
+    @staticmethod
+    async def run_detail_single_dou_record_scraper_async_batch(urls_title_list):
+        tasks = [ScraperUtil.make_request_to_dou_journal_moreDetail_and_scraping_async_task(url_title) for url_title in urls_title_list]
+        return await asyncio.gather(*tasks)
+
+
+
+    @staticmethod
+    def run_detail_single_dou_record_scraper_using_event_loop(urls_title_list):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        try:
+            all_dous_with_current_date_moreDetails = loop.run_until_complete(
+                ScraperUtil.run_detail_single_dou_record_scraper_async_batch(urls_title_list)
+            )
+        finally:
+            loop.close()
+
+        return all_dous_with_current_date_moreDetails
+    
+    
+    
+    @staticmethod
+    def run_dontDetailsPage_scraper(url_param: str):
+        
+        scraper = cfscrape.create_scraper()
+        response = scraper.get(url_param)
+        
+        if response.status_code == 200:
+                
+            result = ScraperUtil.run_beautifulSoup_into_dontDetailsPage(response)
+        
+            return result
+        
+        else:
+            
+            ScraperUtil.logger.error('run_dontDetailsPage_scraper: Erro na requisição para a página dos jornais não detalhados, ' + "error_in_dou_server_side: " + response.text + "status_code: " + response.status_code + "response_obj: " + response)
+            
+            return ({"error_in_dou_server_side":response.text, "status_code":response.status_code, "response_obj":response})
+    
+    
+    
+    @staticmethod
+    def run_beautifulSoup_into_dontDetailsPage(response):
+        
+        site_html_str = BeautifulSoup(response.text, "html.parser")
+        all_scriptTag_that_contains_dou_journals =  site_html_str.find('script', {'id': 'params'})
+        
+        if all_scriptTag_that_contains_dou_journals:
+            
+            scriptTag_that_contains_dou_journals = all_scriptTag_that_contains_dou_journals.contents[0]
+
+            dou_journals_json = json.loads(scriptTag_that_contains_dou_journals)
+
+            dou_journals_jsonArrayField_dict = dou_journals_json.get("jsonArray")
+
+            if dou_journals_jsonArrayField_dict:
+                
+                return dou_journals_jsonArrayField_dict
+            
+            else:
+
+                return ({"jsonArray_isEmpty":"objeto jsonArray é vazio, então não existem jornais para este dia!"})
+            
+        else:
+            
+            return ({"error_in_our_server_side":"Tag <script id='params'> não encontrada.\nView do DOU sofreu mudanças! ;-;"})
+        

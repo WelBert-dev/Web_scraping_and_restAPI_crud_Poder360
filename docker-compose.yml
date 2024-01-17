@@ -7,6 +7,9 @@ services:
       context: .
     ports:
       - 8000:8000
+
+    networks:
+      - minha_rede
     volumes:
       - ./djangoapp:/djangoapp
       - ./data/web/static:/data/web/static/
@@ -15,10 +18,69 @@ services:
       - ./dotenv_files/.env
     depends_on:
       - psql
+
+  djangoappcloneone:
+    container_name: djangoappcloneone
+    build:
+      context: ./djangoapp_api1
+    ports:
+      - 8001:8001
+    networks:
+      - minha_rede
+    volumes:
+      - ./djangoapp_api1/djangoapp:/djangoapp
+      - ./djangoapp_api1/data/web/static:/data/web/static/
+      - ./djangoapp_api1/data/web/media:/data/web/media/
+    env_file:
+      - ./djangoapp_api1/dotenv_files/.env
+    depends_on:
+      - psql    
+
+  djangoappclonetwo:
+    container_name: djangoappclonetwo
+    build:
+      context: ./djangoapp_api2
+    ports:
+      - 8002:8002
+    networks:
+      - minha_rede
+    volumes:
+      - ./djangoapp_api2/djangoapp:/djangoapp
+      - ./djangoapp_api2/data/web/static:/data/web/static/
+      - ./djangoapp_api2/data/web/media:/data/web/media/
+    env_file:
+      - ./djangoapp_api2/dotenv_files/.env
+    depends_on:
+      - psql
+
+  djangoappclonethree:
+    container_name: djangoappclonethree
+    build:
+      context: ./djangoapp_api3
+    ports:
+      - 8003:8003
+    networks:
+      - minha_rede
+    volumes:
+      - ./djangoapp_api3/djangoapp:/djangoapp
+      - ./djangoapp_api3/data/web/static:/data/web/static/
+      - ./djangoapp_api3/data/web/media:/data/web/media/
+    env_file:
+      - ./djangoapp_api3/dotenv_files/.env
+    depends_on:
+      - psql
+
   psql:
     container_name: psql
     image: postgres:13-alpine
+    networks:
+      - minha_rede
     volumes:
       - ./data/postgres/data:/var/lib/postgresql/data/
-    env_file:
+    env_file: 
       - ./dotenv_files/.env
+
+
+networks:   
+  minha_rede: 
+    driver: bridge

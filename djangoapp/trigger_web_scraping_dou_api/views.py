@@ -139,8 +139,13 @@ class ScraperViewSet(APIView):
     # Para testes por enquanto vou manter assim, pois é mais rápido para raspagem, mas vou corrigir jaja
     def handle_URL_empty_params(self, saveInDBFlagURLQueryString, detailDOUJournalFlag):
         
-        response = ScraperUtil.run_scraper_with_empty_params(saveInDBFlagURLQueryString, detailDOUJournalFlag)
+        response = ScraperUtil.run_scraper_with_empty_params_using_others_instance_of_our_apis(saveInDBFlagURLQueryString, detailDOUJournalFlag)
         
+        # response = list (response)
+        # summary = [len(response[0]), len(response[1]), len(response[2])]
+        
+        # response.append(summary)
+        # print(response)
         return self.handle_response(response)
 
         

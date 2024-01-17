@@ -1409,6 +1409,94 @@ Endpoint:
 
 - Obs: Durante os testes, eu tive que mockar a data para quinta feira "11-01-2024", pois final de semana não teve registros de nenhum jornal. MAS retirei o mock na hora do commit, o get all ou outras rotas sem passar parâmetro de data consideram o dia atual.	
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+21o - Otimização MASTER (3x Mais rápido) da performance com uso de +3 Instâncias clones da API, paralelismo e async em pontos críticos:
+
+- OBS: `.env` sofreu mudanças por conta disto! então removi ele do gitignore então não precisa configurar.
 
 
+Após várias configurações visando aumentar a performance para o endpoint mais bruto:
+
+	- GET ALL: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True
+
+
+Percebi que apenas o paralelismo e async não seriam o suficiente, e a melhoria veio junto com a lição:
+
+
+	- Para operações brutas de IO (network) a melhor técnica é async nas chamadas para requisições em massa.
+	
+	- Além disto, clonei + 3 instâncias da API, aonde cada uma é responsável pela lista de URL's de cada seção.
+		
+		
+		
+- Métricas ANTES de delegar a tarefa para mais instâncias da mesma API em paralelo e utilizar async:
+
+	- GET ALL: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True
+	
+	
+	
+				MÉTRICAS (ANTES):
+				
+				
+				
+		Tempo de CPU do usuário 	204471.176 ms
+		Tempo de CPU do sistema 	124701.111 ms
+		Tempo total de CPU 		329172.287 ms
+		Tempo decorrido 		319575.105 ms
+		Mudanças de contexto 		369385 voluntário, 103707 involuntário
+	
+
+
+- Métricas utilizando + 3 instâncias clones da API e delegando:
+
+		- GET ALL: http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True
+	
+	
+	
+				EXECUTA POR DEBAIXO DOS PANOS:
+				
+				
+	
+		- do1 para: http://127.0.0.1:8002/trigger_web_scraping_dou_api/?secao=do1
+		- do2 para: http://127.0.0.1:8003/trigger_web_scraping_dou_api/?secao=do2
+		- do3 para: http://127.0.0.1:8003/trigger_web_scraping_dou_api/?secao=do3
+	
+	
+	
+				MÉTRICAS (DEPOIS, OTIMIZADO):
+	 
+	 
+	 
+
+		Tempo de CPU do usuário 	7939.230 ms
+		Tempo de CPU do sistema 	1653.996 ms
+		Tempo total de CPU 		9593.226 ms
+		Tempo decorrido 		101200.783 ms
+		Mudanças de contexto 		4505 voluntário, 1523 involuntário
+		
+		
+		
+				RESUMO GERAL:
+
+
+
+					   ANTES       DEPOIS
+		Tempo de CPU do usuário: 204471.176 - 7939.230   = 196531.946 ms MAIS RÁPIDO!
+		Tempo de CPU do sistema: 124701.111 - 1653.996   = 123047.115 ms MAIS RÁPIDO!
+		Tempo total de CPU:	 329172.287 - 9593.226   = 319579.061 ms MAIS RÁPIDO!
+		Tempo decorrido:	 319575.105 - 101200.783 = 218374.322 ms MAIS RÁPIDO!		
+		
+				
+				
+				CONHECIMENTO ADQUIRIDO:
+			
+			
+			
+	- concurrent.futures.ThreadPoolExecutor(): Essa abordagem é mais recomendada em operações de cálculos intensivos (o que não é o nosso caso de uso).
+	
+	- Assincronismo (async): Essa é a melhor abordagem para operações intensivas de IO (o que é o nosso caso), e foi a melhor de todas, reduzindo o tempo de espera drásticamente, além de executar mais instâncias da API ao mesmo tempo.
+	
+	- Utilizamos chamadas assíncronas com a lib `aiocsfcrape` que extends funcionalidades da `aiohttp`, ela une funcionalidades de async para IO em conjunto com o bypass para o Cloudflare.
+		
 
