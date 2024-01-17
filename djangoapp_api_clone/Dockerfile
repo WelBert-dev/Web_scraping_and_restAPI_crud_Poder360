@@ -17,10 +17,6 @@ COPY scripts /scripts
 # Entra na pasta djangoapp no container
 WORKDIR /djangoapp
 
-# A porta 8000 estará disponível para conexões externas ao container
-# É a porta que vamos usar para o Django.
-EXPOSE 8002
-
 # RUN executa comandos em um shell dentro do container para construir a imagem. 
 # O resultado da execução do comando é armazenado no sistema de arquivos da 
 # imagem como uma nova camada.
@@ -47,5 +43,5 @@ ENV PATH="/scripts:/venv/bin:$PATH"
 # Muda o usuário para duser
 USER duser
 
-# Executa o arquivo scripts/commands.sh
-CMD ["commands.sh"]
+# # Executa o arquivo scripts/commands.sh
+CMD ["entrypoint.sh"]

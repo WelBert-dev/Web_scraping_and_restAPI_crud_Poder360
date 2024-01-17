@@ -22,53 +22,59 @@ services:
   djangoappcloneone:
     container_name: djangoappcloneone
     build:
-      context: ./djangoapp_api1
+      context: ./djangoapp_api_clone
     ports:
       - 8001:8001
     networks:
       - minha_rede
     volumes:
-      - ./djangoapp_api1/djangoapp:/djangoapp
-      - ./djangoapp_api1/data/web/static:/data/web/static/
-      - ./djangoapp_api1/data/web/media:/data/web/media/
+      - ./djangoapp_api_clone/djangoapp:/djangoapp
+      - ./djangoapp_api_clone/data/web/static:/data/web/static/
+      - ./djangoapp_api_clone/data/web/media:/data/web/media/
     env_file:
-      - ./djangoapp_api1/dotenv_files/.env
+      - ./djangoapp_api_clone/dotenv_files/.env
     depends_on:
       - psql    
+    environment:
+      - PORT=8001
 
   djangoappclonetwo:
     container_name: djangoappclonetwo
     build:
-      context: ./djangoapp_api2
+      context: ./djangoapp_api_clone
     ports:
       - 8002:8002
     networks:
       - minha_rede
     volumes:
-      - ./djangoapp_api2/djangoapp:/djangoapp
-      - ./djangoapp_api2/data/web/static:/data/web/static/
-      - ./djangoapp_api2/data/web/media:/data/web/media/
+      - ./djangoapp_api_clone/djangoapp:/djangoapp
+      - ./djangoapp_api_clone/data/web/static:/data/web/static/
+      - ./djangoapp_api_clone/data/web/media:/data/web/media/
     env_file:
-      - ./djangoapp_api2/dotenv_files/.env
+      - ./djangoapp_api_clone/dotenv_files/.env
     depends_on:
       - psql
+    environment:
+      - PORT=8002
 
   djangoappclonethree:
     container_name: djangoappclonethree
     build:
-      context: ./djangoapp_api3
+      context: ./djangoapp_api_clone
     ports:
       - 8003:8003
     networks:
       - minha_rede
     volumes:
-      - ./djangoapp_api3/djangoapp:/djangoapp
-      - ./djangoapp_api3/data/web/static:/data/web/static/
-      - ./djangoapp_api3/data/web/media:/data/web/media/
+      - ./djangoapp_api_clone/djangoapp:/djangoapp
+      - ./djangoapp_api_clone/data/web/static:/data/web/static/
+      - ./djangoapp_api_clone/data/web/media:/data/web/media/
     env_file:
-      - ./djangoapp_api3/dotenv_files/.env
+      - ./djangoapp_api_clone/dotenv_files/.env
     depends_on:
       - psql
+    environment:
+      - PORT=8003
 
   psql:
     container_name: psql
