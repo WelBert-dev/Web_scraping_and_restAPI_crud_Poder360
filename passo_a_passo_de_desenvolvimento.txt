@@ -1411,7 +1411,7 @@ Endpoint:
 
 -------------------------------------------------------------------------------------------------------------------------------
 
-21o - Otimização MASTER (3x Mais rápido) da performance com uso de +3 Instâncias clones da API, paralelismo e async em pontos críticos:
+22o - Otimização MASTER (3x Mais rápido) da performance com uso de +3 Instâncias clones da API, paralelismo e async em pontos críticos:
 
 - OBS: `.env` sofreu mudanças por conta disto! então removi ele do gitignore então não precisa configurar.
 
@@ -1442,8 +1442,8 @@ Percebi que apenas o paralelismo e async não seriam o suficiente, e a melhoria 
 				
 		Tempo de CPU do usuário 	204471.176 ms
 		Tempo de CPU do sistema 	124701.111 ms
-		Tempo total de CPU 		329172.287 ms
-		Tempo decorrido 		319575.105 ms
+		Tempo total de CPU 			329172.287 ms
+		Tempo decorrido 			319575.105 ms
 		Mudanças de contexto 		369385 voluntário, 103707 involuntário
 	
 
@@ -1471,8 +1471,8 @@ Percebi que apenas o paralelismo e async não seriam o suficiente, e a melhoria 
 
 		Tempo de CPU do usuário 	7939.230 ms
 		Tempo de CPU do sistema 	1653.996 ms
-		Tempo total de CPU 		9593.226 ms
-		Tempo decorrido 		101200.783 ms
+		Tempo total de CPU 			9593.226 ms
+		Tempo decorrido 			101200.783 ms
 		Mudanças de contexto 		4505 voluntário, 1523 involuntário
 		
 		
@@ -1484,8 +1484,8 @@ Percebi que apenas o paralelismo e async não seriam o suficiente, e a melhoria 
 					   ANTES       DEPOIS
 		Tempo de CPU do usuário: 204471.176 - 7939.230   = 196531.946 ms MAIS RÁPIDO!
 		Tempo de CPU do sistema: 124701.111 - 1653.996   = 123047.115 ms MAIS RÁPIDO!
-		Tempo total de CPU:	 329172.287 - 9593.226   = 319579.061 ms MAIS RÁPIDO!
-		Tempo decorrido:	 319575.105 - 101200.783 = 218374.322 ms MAIS RÁPIDO!		
+		Tempo total de CPU:	  	 329172.287 - 9593.226   = 319579.061 ms MAIS RÁPIDO!
+		Tempo decorrido:		 319575.105 - 101200.783 = 218374.322 ms MAIS RÁPIDO!		
 		
 				
 				
@@ -1500,3 +1500,122 @@ Percebi que apenas o paralelismo e async não seriam o suficiente, e a melhoria 
 	- Utilizamos chamadas assíncronas com a lib `aiocsfcrape` que extends funcionalidades da `aiohttp`, ela une funcionalidades de async para IO em conjunto com o bypass para o Cloudflare.
 		
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+ 23o - ScraperAPI: [Teste de performance] Disseminando otimização da performance ENDPOINT DA API: 
+ 
+ VARRENDO COM NENHUM PARAMETRO, GETALL NA HOME: 
+ 
+ Utilizando programação async (Porém não delegando para API's clones):
+
+            Varre tudo da home do portal DOU gov porém NÃO SALVA em banco de dados:
+            - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/
+
+		METRICAS ANTES: Utilizando paralelismo com ThreadPoolExecutor():
+
+		# Executa a função passando como parâmetro cada elemento da lista individualmente, para cada thread diferente:
+		# Porisso o `*len(dous_list)` nos outros parâmetros subsequentes que não é a "lista principal" de `dou_list`
+		# Por conta deste comportamento aonde a função é executada para cada elemento da lista em paralelo.
+		# Logo, os parâmetros devem ser listas com o mesmo tamanho, e como não são listas mesmo igual ao `dou_list`
+		# então transformamos esses parâmetros em listas e utilizamos `len()` para que todos os parâmetros da função correspondam com o mesmo tamanho linearmente entre sí.
+
+		```
+		    dous_list = ['do1', 'do2', 'do3']
+		    all_dous_with_current_date_dontDetails = []
+		    with ThreadPoolExecutor() as executor:
+
+		        all_dous_with_current_date_dontDetails = list(executor.map(ScraperUtil.run_scraper_with_all_params, dous_list, [date_now_db_and_brazilian_format]*len(dous_list), [saveInDBFlagURLQueryString]*len(dous_list)))
+
+		    return all_dous_with_current_date_dontDetails ```
+
+		Tempo de CPU do usuário 	4922.568 ms
+		Tempo de CPU do sistema 	428.632 ms
+		Tempo total de CPU 			5351.200 ms
+		Tempo decorrido 			10498.939 ms
+		Mudanças de contexto 		4152 voluntário, 188 involuntário
+
+		METRICAS DEPOIS: Utilizando programação async (Porém não delegando para API's clones): RESULTADO PIOR QUE O ANTERIOR:
+
+		# Aplica a mesma lógica das API's Clones, porém aqui não ganhamos performance!
+		# Isso ocorre pois com poucas requisições executadas async não compensa devido aos processamentos adicionais relacionados ao assincronismo que ocorrem "por debaixo dos panos".
+		# Processamentos esses que são de verificações e tudo mais que está implementado no async e nós não vemos pois o python abstraí essa complexidade.
+
+		# Já nas API's Clones essa abordagem é mais eficiente, pois o processamento adicional implementado no async se torna irrelevante quando a massa de dados é maior.
+
+		Tempo de CPU do usuário 	5252.706 ms
+		Tempo de CPU do sistema 	395.352 ms
+		Tempo total de CPU 			5648.058 ms
+		Tempo decorrido 			12014.677 ms
+		Mudanças de contexto 		1972 voluntário, 175 involuntário
+
+		CONHECIMENTO ADQUIRIDO:
+
+	- concurrent.futures.ThreadPoolExecutor(): Essa abordagem é mais recomendada quando desejamos realizar operações de IO (network) em paralelo, QUANDO a quantidade de requisições é menor.
+
+	- Assincronismo (async): Essa é a melhor abordagem para operações INTENSIVAS de IO (Network) o que NÃO é esse caso, pois também devemos levar em conta o processamento ADICIONAL que é executado explicitamente "por debaixo dos panos" para copntroles internos do python em relação ao async.
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+24o - ScraperAPI: [Teste de performance] Disseminando otimização da performance ENDPOINT DA API: 
+
+VARRENDO COM NENHUM PARAMETRO, GETALL NA HOME: 
+
+Delegando para as API's clones, aonde cada uma responde uma seção `dou` respectiva [MELHOR MÉTRICA PARA ESTE ENDPOINT]:
+
+
+            Varre tudo da home do portal DOU gov porém NÃO SALVA em banco de dados:
+            - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/
+
+
+
+		METRICAS: Delegando a chamada para cada API clone uma seção `dou` respectiva OBTEVE MELHOR RESULTADO PARA ESSE ENDPOINT:
+		
+		- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/
+		
+		
+		
+					CHAMA:
+					
+					
+		- GET http://127.0.0.1:8001/trigger_web_scraping_dou_api/trigger_web_scraping_dou_api/?secao=do1&data=CURRENT
+		- GET http://127.0.0.1:8002/trigger_web_scraping_dou_api/trigger_web_scraping_dou_api/?secao=do1&data=CURRENT
+		- GET http://127.0.0.1:8003/trigger_web_scraping_dou_api/trigger_web_scraping_dou_api/?secao=do1&data=CURRENT
+		
+		
+		
+		Tempo de CPU do usuário 	5014.167 ms
+		Tempo de CPU do sistema 	371.048 ms
+		Tempo total de CPU 			5385.215 ms
+		Tempo decorrido 			7349.486 ms
+		Mudanças de contexto 		2412 voluntário, 221 involuntário
+		
+		
+		
+		MELHOR METRICA DE ANTES: Utilizando paralelismo com ThreadPoolExecutor() e NÃO DELEGANDO para as API's clones:
+
+
+
+		# Executa a função passando como parâmetro cada elemento da lista individualmente, para cada thread diferente:
+		# Porisso o `*len(dous_list)` nos outros parâmetros subsequentes que não é a "lista principal" de `dou_list`
+		# Por conta deste comportamento aonde a função é executada para cada elemento da lista em paralelo.
+		# Logo, os parâmetros devem ser listas com o mesmo tamanho, e como não são listas mesmo igual ao `dou_list`
+		# então transformamos esses parâmetros em listas e utilizamos `len()` para que todos os parâmetros da função correspondam com o mesmo tamanho linearmente entre sí.
+
+		```
+		    dous_list = ['do1', 'do2', 'do3']
+		    all_dous_with_current_date_dontDetails = []
+		    with ThreadPoolExecutor() as executor:
+
+		        all_dous_with_current_date_dontDetails = list(executor.map(ScraperUtil.run_scraper_with_all_params, dous_list, [date_now_db_and_brazilian_format]*len(dous_list), [saveInDBFlagURLQueryString]*len(dous_list)))
+
+		    return all_dous_with_current_date_dontDetails ```
+
+
+
+		Tempo de CPU do usuário 	4922.568 ms
+		Tempo de CPU do sistema 	428.632 ms
+		Tempo total de CPU 			5351.200 ms
+		Tempo decorrido 			10498.939 ms
+		Mudanças de contexto 		4152 voluntário, 188 involuntário
+		

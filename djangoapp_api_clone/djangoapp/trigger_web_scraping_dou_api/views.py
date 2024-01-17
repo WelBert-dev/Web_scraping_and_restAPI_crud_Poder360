@@ -13,18 +13,44 @@ class ScraperViewSet(APIView):
     def get(self, request):
         
         secaoURLQueryString = request.GET.get('secao')
+        dataURLQueryString = request.GET.get('data')
+        
+        detailDOUJournalFlag = request.GET.get('detailDOUJournalFlag')
+        
         
         # Se não existem parâmetros
         # Lembrando que se trata dos parâmetros: secaoURLQueryString, dataURLQueryString e detailSingleDOUJournalWithUrlTitleFieldURLQueryString
         # NÃO se trata das flags: saveInDBFlagURLQueryString e detailDOUJournalFlag.
         # Essas flags modificam o comportamento desses handlers abaixo.
 
+        
         # Se ?section= foi passado no URL query string param
-        if URLQueryStringParameterValidator.is_secaoURLQueryString_valid(secaoURLQueryString):
-            
-            print("MAIS UM GET PARA: " + secaoURLQueryString)
+        if URLQueryStringParameterValidator.is_secaoURLQueryString_unic(secaoURLQueryString, 
+                                                                          dataURLQueryString) and \
+             URLQueryStringParameterValidator.is_secaoURLQueryString_valid(secaoURLQueryString):
+                 
+            print("MAIS UM GET PARA, utilizando seção: " + secaoURLQueryString)
+                 
+            if detailDOUJournalFlag:
                 
-            return self.handle_details_the_dou_with_secaoURLQueryString(secaoURLQueryString)
+                return self.handle_secaoURLQueryString_single_param_and_detail_the_dous(secaoURLQueryString)
+            
+            return self.handle_secaoURLQueryString_single_param(secaoURLQueryString)
+        
+        # Se ?section= e ?data= foi passado no URL query string param
+        elif (URLQueryStringParameterValidator.is_secaoURLQueryString_and_dataURLQueryString_params(secaoURLQueryString, 
+                                                                                                    dataURLQueryString) and \
+              URLQueryStringParameterValidator.is_secaoURLQueryString_and_dataURLQueryString_valid(secaoURLQueryString, 
+                                                                                                      dataURLQueryString)):
+            print("MAIS UM GET PARA, utilizando data e seção: " + secaoURLQueryString)
+            
+            if detailDOUJournalFlag:
+                
+                return self.handle_secaoURLQueryString_and_dataURLQueryString_params_and_detail_the_dous(secaoURLQueryString, 
+                                                                                                         dataURLQueryString)
+            
+            return self.handle_secaoURLQueryString_and_dataURLQueryString_params(secaoURLQueryString, 
+                                                                                 dataURLQueryString)
                                                                 
         
     
@@ -51,10 +77,39 @@ class ScraperViewSet(APIView):
         
     # Varre os DOU da seção mencionada no query string param, na data atual
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`
-    def handle_details_the_dou_with_secaoURLQueryString(self, secaoURLQueryString_param):
+    def handle_secaoURLQueryString_single_param(self, secaoURLQueryString_param):
         
-        response = ScraperUtil.run_scraper_with_section_and_details_the_dous(secaoURLQueryString_param)
+        response = ScraperUtil.run_scraper_with_section(secaoURLQueryString_param)
     
+        return self.handle_response(response)
+    
+    
+    # Varre os DOU da seção mencionada no query string param, na data atual
+    # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`
+    # E Detalha cada jornal
+    def handle_secaoURLQueryString_single_param_and_detail_the_dous(self, secaoURLQueryString_param):
+        
+        response = ScraperUtil.run_scraper_with_section_and_detail_the_dou(secaoURLQueryString_param)
+    
+        return self.handle_response(response)
+    
+    
+    # Varre os DOU da seção e data mencionada no query string param
+    # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`&data=`DD-MM-AAAA`
+    def handle_secaoURLQueryString_and_dataURLQueryString_params_and_detail_the_dous(self, secaoURLQueryString, dataURLQueryString):
+        
+        response = ScraperUtil.run_scraper_with_all_params_and_detail_the_dou(secaoURLQueryString, dataURLQueryString)
+
+        return self.handle_response(response)
+    
+    
+    # Varre os DOU da seção e data mencionada no query string param
+    # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=`do1 | do2 | do3`&data=`DD-MM-AAAA`
+    # E Detalha cada jornal
+    def handle_secaoURLQueryString_and_dataURLQueryString_params(self, secaoURLQueryString, dataURLQueryString):
+        
+        response = ScraperUtil.run_scraper_with_all_params(secaoURLQueryString, dataURLQueryString)
+
         return self.handle_response(response)
     
 

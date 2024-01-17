@@ -47,27 +47,27 @@ class ScraperUtil:
             async with session.get(url) as resp:
                 return await resp.text()
     
-    # @staticmethod
-    # def run_dontDetailsPage_scraper(url_param: str, saveInDBFlagURLQueryString : bool):
+    @staticmethod
+    def run_dontDetailsPage_scraper(url_param: str, saveInDBFlagURLQueryString : bool):
         
-    #     scraper = cfscrape.create_scraper()
-    #     response = scraper.get(url_param)
+        scraper = cfscrape.create_scraper()
+        response = scraper.get(url_param)
 
-    #     if response.status_code == 200:
+        if response.status_code == 200:
             
-    #         # Para processamentos em paralelo: ProcessPoolExecutor:
-    #         # Para requisições network em paralelo ele é ruim, o melhor é o ThreadPoolExecutor
-    #         with ProcessPoolExecutor() as executor:
+            # Para processamentos em paralelo: ProcessPoolExecutor:
+            # Para requisições network em paralelo ele é ruim, o melhor é o ThreadPoolExecutor
+            with ProcessPoolExecutor() as executor:
                 
-    #             result = list(executor.map(ScraperUtil.run_beautifulSoup_into_dontDetailsPage, [response], [saveInDBFlagURLQueryString]))
+                result = list(executor.map(ScraperUtil.run_beautifulSoup_into_dontDetailsPage, [response], [saveInDBFlagURLQueryString]))
         
-    #         return result
+            return result
 
-    #     else:
+        else:
             
-    #         ScraperUtil.logger.error('run_dontDetailsPage_scraper: Erro na requisição: , ' + response)
+            ScraperUtil.logger.error('run_dontDetailsPage_scraper: Erro na requisição: , ' + response)
             
-    #         return ({"error_in_dou_server_side":response.text, "status_code":response.status_code, "response_obj":response})
+            return ({"error_in_dou_server_side":response.text, "status_code":response.status_code, "response_obj":response})
 
 
         
@@ -97,99 +97,91 @@ class ScraperUtil:
     
     
     
-    # @staticmethod
-    # def run_scraper_with_section(secaoURLQueryString_param, saveInDBFlagURLQueryString : bool):
+    @staticmethod
+    def run_scraper_with_section(secaoURLQueryString_param, saveInDBFlagURLQueryString : bool):
         
-    #     # Todos argumentos presentes, Varre os DOU da seção mencionada no query string param, na data atual
+        # Todos argumentos presentes, Varre os DOU da seção mencionada no query string param, na data atual
         
-    #     date_now_db_and_brazilian_format = DateUtil.get_current_date_db_and_brazilian_format()
+        date_now_db_and_brazilian_format = DateUtil.get_current_date_db_and_brazilian_format()
         
-    #     url_param = DOU_BASE_URL + "?data=" + date_now_db_and_brazilian_format + "&secao=" + secaoURLQueryString_param
+        url_param = DOU_BASE_URL + "?data=" + date_now_db_and_brazilian_format + "&secao=" + secaoURLQueryString_param
         
-    #     return ScraperUtil.run_dontDetailsPage_scraper(url_param, saveInDBFlagURLQueryString)
+        return ScraperUtil.run_dontDetailsPage_scraper(url_param, saveInDBFlagURLQueryString)
     
     
     
-    # @staticmethod
-    # def run_scraper_with_date(dataURLQueryString_param, saveInDBFlagURLQueryString : bool):
+    @staticmethod
+    def run_scraper_with_date(dataURLQueryString_param, saveInDBFlagURLQueryString : bool):
         
-    #     # Varre todos os DOU da data mencionada no query string param
+        # Varre todos os DOU da data mencionada no query string param
         
-    #     # OBS IMPORTANTE: Ao requisitar apenas a data na query string param, o padrão do portal https://www.in.gov.br/leiturajornal    
-    #     # É retornar apenas o DOU1, então eu tive que implementar a lógica para requisitar os DOU2 e DOU3 
-    #     # Na mão, ou seja, primeiro ele requisita o DOU1 + data, depois DOU2 + data ....
+        # OBS IMPORTANTE: Ao requisitar apenas a data na query string param, o padrão do portal https://www.in.gov.br/leiturajornal    
+        # É retornar apenas o DOU1, então eu tive que implementar a lógica para requisitar os DOU2 e DOU3 
+        # Na mão, ou seja, primeiro ele requisita o DOU1 + data, depois DOU2 + data ....
         
         
-    #     # Palelelismo executando a função para cada elemento da lista: 
-    #     dous_list = ['do1', 'do2', 'do3']
-    #     with ThreadPoolExecutor() as executor:
+        # Palelelismo executando a função para cada elemento da lista: 
+        dous_list = ['do1', 'do2', 'do3']
+        with ThreadPoolExecutor() as executor:
            
-    #         all_dous_with_current_date_dontDetails = list(executor.map(ScraperUtil.run_scraper_with_all_params, dous_list, [dataURLQueryString_param]*len(dous_list), [saveInDBFlagURLQueryString]*len(dous_list)))
+            all_dous_with_current_date_dontDetails = list(executor.map(ScraperUtil.run_scraper_with_all_params, dous_list, [dataURLQueryString_param]*len(dous_list), [saveInDBFlagURLQueryString]*len(dous_list)))
             
-    #     return all_dous_with_current_date_dontDetails
+        return all_dous_with_current_date_dontDetails
     
     
     
-    # @staticmethod
-    # def run_scraper_with_all_params(secaoURLQueryString_param, dataURLQueryString_param, saveInDBFlagURLQueryString : bool):
+    @staticmethod
+    def run_scraper_with_all_params(secaoURLQueryString_param, dataURLQueryString_param, saveInDBFlagURLQueryString : bool):
         
-    #     # Varre todos os DOU da data mencionada no query string param
+        # Varre todos os DOU da data mencionada no query string param
             
-    #     url_param = DOU_BASE_URL + "?data=" + dataURLQueryString_param + "&secao=" + secaoURLQueryString_param
+        url_param = DOU_BASE_URL + "?data=" + dataURLQueryString_param + "&secao=" + secaoURLQueryString_param
         
-    #     return ScraperUtil.run_dontDetailsPage_scraper(url_param, saveInDBFlagURLQueryString)
+        return ScraperUtil.run_dontDetailsPage_scraper(url_param, saveInDBFlagURLQueryString)
     
     
     
     @staticmethod        
     def run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag : bool):
         
-        
-        all_dous_with_current_date_dontDetails = []
+        all_dous_with_current_date = []
         date_now_db_and_brazilian_format = DateUtil.get_current_date_db_and_brazilian_format()
         
         if not detailDOUJournalFlag: 
             
-            # Não utiliza as instancias clones da API pois é mais rápido não detalhar cada jornal dou.
-            dous_list = ['do1', 'do2', 'do3']
-            all_dous_with_current_date_dontDetails = []
-            # with ThreadPoolExecutor() as executor:
+            urls_clones_instances = [
+                URL_API1_CLONE_INSTANCE_DJANGOAPPCLONEONE + 
+                "trigger_web_scraping_dou_api/?secao=do1&data=" + date_now_db_and_brazilian_format,
+                
+                URL_API2_CLONE_INSTANCE_DJANGOAPPCLONETWO + 
+                "trigger_web_scraping_dou_api/?secao=do2&data=" + date_now_db_and_brazilian_format,
+                
+                URL_API3_CLONE_INSTANCE_DJANGOAPPCLONETHREE + 
+                "trigger_web_scraping_dou_api/?secao=do3&data=" + date_now_db_and_brazilian_format,
+            ]    
             
-            #     all_dous_with_current_date_dontDetails = list(executor.map(ScraperUtil.run_scraper_with_all_params, dous_list, [date_now_db_and_brazilian_format]*len(dous_list), [saveInDBFlagURLQueryString]*len(dous_list)))
-            
-            # return all_dous_with_current_date_dontDetails
-            
-            return ScraperUtil.run_dontDetailsPage_scraper_using_event_loop(dous_list, date_now_db_and_brazilian_format)
-        else:
-            
-            # Utilizando as instancias clones da API em processo paralelo
-            # urls_clones_instances = [
-            # "http://djangoappcloneone:8001/trigger_web_scraping_dou_api/?secao=do1",
-            # "http://djangoappclonetwo:8002/trigger_web_scraping_dou_api/?secao=do2",
-            # "http://djangoappclonethree:8003/trigger_web_scraping_dou_api/?secao=do3",
-            # ]
+        else:   
             
             urls_clones_instances = [
-                URL_API1_CLONE_INSTANCE_DJANGOAPPCLONEONE + "trigger_web_scraping_dou_api/?secao=do1",
-                URL_API2_CLONE_INSTANCE_DJANGOAPPCLONETWO + "trigger_web_scraping_dou_api/?secao=do2",
-                URL_API3_CLONE_INSTANCE_DJANGOAPPCLONETHREE + "trigger_web_scraping_dou_api/?secao=do3",
-            ]       
+                URL_API1_CLONE_INSTANCE_DJANGOAPPCLONEONE + 
+                "trigger_web_scraping_dou_api/?secao=do1&data=" + date_now_db_and_brazilian_format +
+                "&detailDOUJournalFlag=True",
+                
+                URL_API2_CLONE_INSTANCE_DJANGOAPPCLONETWO + 
+                "trigger_web_scraping_dou_api/?secao=do2&data=" + date_now_db_and_brazilian_format + 
+                "&detailDOUJournalFlag=True",
+                
+                URL_API3_CLONE_INSTANCE_DJANGOAPPCLONETHREE + 
+                "trigger_web_scraping_dou_api/?secao=do3&data=" + date_now_db_and_brazilian_format + 
+                "&detailDOUJournalFlag=True",
+            ]      
             
-            all_dous_with_current_date_moreDetails = []
-            
-            # Pra cada um dos endpoints, execute em paralelo a chamada da função, iterando na lista, para cada elemento:
-            # Delegando a responsabilidade de cada seção dou, para cada uma das instâncias...
-            
-            # Lá, vai ser executado o batch de urls com async (Foi a melhor configuração para este cenário)
-            # Métricas no histórico do git.. rsrs
-            
-            with ThreadPoolExecutor() as executor:
-            
-                all_dous_with_current_date_moreDetails = list(executor.map(ScraperUtil.make_request_for_others_clone_api, urls_clones_instances))
-            
-            return all_dous_with_current_date_moreDetails
+        with ThreadPoolExecutor() as executor:
         
-        return all_dous_with_current_date_dontDetails
+            all_dous_with_current_date = list(executor.map(ScraperUtil.make_request_for_others_clone_api, 
+                                                                                    urls_clones_instances))
+        
+        return all_dous_with_current_date
     
 
 
@@ -206,9 +198,9 @@ class ScraperUtil:
     
     
     @staticmethod
-    async def run_beautifulSoup_into_dontDetailsPage_async(response):
+    def run_beautifulSoup_into_dontDetailsPage(response, saveInDBFlagURLQueryString : bool):
         
-        site_html_str = BeautifulSoup(response, "html.parser")
+        site_html_str = BeautifulSoup(response.text, "html.parser")
         all_scriptTag_that_contains_dou_journals =  site_html_str.find('script', {'id': 'params'})
         
         if all_scriptTag_that_contains_dou_journals:
@@ -221,11 +213,11 @@ class ScraperUtil:
 
             if dou_journals_jsonArrayField_dict:
                 
-                # if saveInDBFlagURLQueryString:
+                if saveInDBFlagURLQueryString:
                     
-                #     with ProcessPoolExecutor() as executor:
+                    with ProcessPoolExecutor() as executor:
     
-                #         executor.map(JournalJsonArrayOfDOUService.insert_into_distinct_journals_and_date_normalize, [dou_journals_jsonArrayField_dict])
+                        executor.map(JournalJsonArrayOfDOUService.insert_into_distinct_journals_and_date_normalize, [dou_journals_jsonArrayField_dict])
                     
                 return dou_journals_jsonArrayField_dict
             
@@ -298,63 +290,18 @@ class ScraperUtil:
                     "paragrafos":paragraphs_list,
                     "assina":assina,
                     "cargo":cargo})
-        
-    
-    @staticmethod
-    async def make_request_to_dou_journal_dontDetailsPage_and_scraping_async_task(dou, data):
-        
-        url_param = DOU_BASE_URL + "/?secao=" + dou + "&data=" + data
-        
-        try:
-            
-            response = await ScraperUtil.make_request_cloudflare_bypass_async(url_param)
-            
-            print("Executando raspagem no: " + url_param + "...")
-    
-            result_json = await ScraperUtil.run_beautifulSoup_into_dontDetailsPage_async(response)
-        
-            return result_json   
-            
-        except Exception as e:
-            
-            ScraperUtil.logger.error('make_request_to_dou_journal_moreDetail_and_scraping_async: Erro: ' + str(e))
-
-            return f"ERROR NA CHAMADA PARA: {url_param}, {str(e)}"
-        
-
-
-    @staticmethod
-    async def run_dontDetailsPage_scraper_async_batch(dous_list, data):
-        tasks = [ScraperUtil.make_request_to_dou_journal_dontDetailsPage_and_scraping_async_task(dou, data) for dou in dous_list]
-        return await asyncio.gather(*tasks)
-
-
-
-    @staticmethod
-    def run_dontDetailsPage_scraper_using_event_loop(dous_list, data):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        try:
-            all_dous_with_date_dontDetailsPage = loop.run_until_complete(
-                ScraperUtil.run_dontDetailsPage_scraper_async_batch(dous_list, data)
-            )
-        finally:
-            loop.close()
-
-        return all_dous_with_date_dontDetailsPage
     
     
     
     # @staticmethod
-    # def run_dontDetailsPage_scraper(url_param: str):
+    # def run_dontDetailsPage_scraper(url_param: str, saveInDBFlagURLQueryString):
         
     #     scraper = cfscrape.create_scraper()
     #     response = scraper.get(url_param)
         
     #     if response.status_code == 200:
                 
-    #         result = ScraperUtil.run_beautifulSoup_into_dontDetailsPage(response)
+    #         result = ScraperUtil.run_beautifulSoup_into_dontDetailsPage(response, saveInDBFlagURLQueryString)
         
     #         return result
         
