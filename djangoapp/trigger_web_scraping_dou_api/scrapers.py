@@ -145,8 +145,9 @@ class ScraperUtil:
             all_dous_with_current_date_dontDetails = []
             with ThreadPoolExecutor() as executor:
             
-                all_dous_with_current_date_dontDetails = executor.map(ScraperUtil.run_scraper_with_all_params, dous_list, [date_now_db_and_brazilian_format]*len(dous_list), [saveInDBFlagURLQueryString]*len(dous_list))
-        
+                all_dous_with_current_date_dontDetails = list(executor.map(ScraperUtil.run_scraper_with_all_params, dous_list, [date_now_db_and_brazilian_format]*len(dous_list), [saveInDBFlagURLQueryString]*len(dous_list)))
+            
+            return all_dous_with_current_date_dontDetails
         else:
             
             # Utilizando as instancias clones da API em processo paralelo
