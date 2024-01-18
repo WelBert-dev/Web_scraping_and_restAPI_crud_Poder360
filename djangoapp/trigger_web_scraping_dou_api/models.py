@@ -19,4 +19,22 @@ class JournalJsonArrayOfDOU(models.Model):
 
     def __str__(self):
         return f"{self.pubName} - {self.pubDate}"
+    
+    
+    
+class DetailSingleJournalOfDOU(models.Model):
+    id = models.AutoField(primary_key=True)
+    versao_certificada = models.URLField()
+    publicado_dou_data = models.DateField()
+    edicao_dou_data = models.CharField(max_length=10)
+    secao_dou_data = models.CharField(max_length=10)
+    orgao_dou_data = models.TextField()
+    title = models.CharField(max_length=255)
+    paragrafos = models.TextField()
+    assina = models.CharField(max_length=255)
+    cargo = models.CharField(max_length=255)
+    
+
+    def __str__(self):
+        return f"{self.versao_certificada} - {self.title}"
    

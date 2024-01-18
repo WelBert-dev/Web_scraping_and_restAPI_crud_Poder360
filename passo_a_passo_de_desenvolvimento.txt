@@ -1618,4 +1618,38 @@ Delegando para as API's clones, aonde cada uma responde uma seção `dou` respec
 		Tempo total de CPU 			5351.200 ms
 		Tempo decorrido 			10498.939 ms
 		Mudanças de contexto 		4152 voluntário, 188 involuntário
-		
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+25o - ScraperAPI: SUPER Otimizações quase finalizadas e SALVAMENTO dos DETALHADOS: 
+
+	- Realizar requisições nos triggers direto pelo browser é BEM LENTO, isso acontece pois os triggers sempre retornam a massa COMPLETA de uma só vez para o cliente, então a requisição é rápida, porém o carregamento do DOM é prejudicado!
+	
+	- Realizar requisições para os endpoints que acessam o banco de dados APÓS executar os triggers (gatilhos) é bem mais performatico executa-los no browser, pois as respostas são paginadas, ou seja, não retorna a massa completa de dados, então o carregamento do DOM não é prejudicado!
+	
+	- Desta  forma, as rotas com `?saveInDBFlag=True` agora são as mais RÁPIDAS, e todas operações tem ela agora!
+	
+
+ENDPOINTS DA API:
+
+
+	SUPER RÁPIDOS: Motivo: Após raspagem, redirecionamento para a rota que consulta o banco local retornando a lista paginada
+	
+	VARRE TODOS OS DOUS DO DIA; NÃO DETALHA; SALVA NO BANCO:
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=True
+	
+	
+	
+	VARRE O DOU MENCIONADO; DETALHA; SALVA NO BANCO:
+	
+	- GET 127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&detailDOUJournalFlag=True&saveInDBFlag=True
+	- GET 127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2&detailDOUJournalFlag=True&saveInDBFlag=True
+	- GET 127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3&detailDOUJournalFlag=True&saveInDBFlag=True
+	
+	
+	
+	VARRE TODOS OS DOUS DO DIA; DETALHA; SALVA NO BANCO:
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True

@@ -12,8 +12,6 @@ from concurrent.futures import ProcessPoolExecutor
 
 from aiocfscrape import CloudflareScraper
 
-from trigger_web_scraping_dou_api.utils import DateUtil
-
 log_path = os.path.join(os.environ.get('LOG_DIR', '.'), 'scrapers_api2_djangoappclonetwo_log.txt')
 
 logging.basicConfig(filename=log_path, level=logging.ERROR,
@@ -33,63 +31,27 @@ class ScraperUtil:
         async with CloudflareScraper() as session:
             async with session.get(url) as resp:
                 return await resp.text()
-            
-    
-    
-    @staticmethod
-    def run_scraper_with_section(secaoURLQueryString_param):
         
-        # Todos argumentos presentes, Varre os DOU da seção mencionada no query string param, na data atual
         
-        date_now_db_and_brazilian_format = DateUtil.get_current_date_db_and_brazilian_format()
-        
-        url_param = DOU_BASE_URL + "?data=" + date_now_db_and_brazilian_format + "&secao=" + secaoURLQueryString_param
-        
-        return ScraperUtil.run_dontDetailsPage_scraper(url_param)
-            
-            
     
     @staticmethod
-    def run_scraper_with_section_and_detail_the_dou(secaoURLQueryString_param):
-        
-        # Todos argumentos presentes, Varre os DOU da seção mencionada no query string param, na data atual
-        
-        date_now_db_and_brazilian_format = DateUtil.get_current_date_db_and_brazilian_format()
-        
-        url_param = DOU_BASE_URL + "?data=" + date_now_db_and_brazilian_format + "&secao=" + secaoURLQueryString_param
-        
-        # Aqui não compensa utilizar paralelismo ou async, pois é apenas uma chamada para para a página secao=do1
-        dou_dontDetails_list_with_jsonArrayField = ScraperUtil.run_dontDetailsPage_scraper(url_param)
-        
-        return ScraperUtil.run_detailsPage_scraper_using_async(dou_dontDetails_list_with_jsonArrayField)
-    
-    
-    
-    @staticmethod
-    def run_scraper_with_all_params(secaoURLQueryString_param, dataURLQueryString_param):
+    def run_scraper_with_all_params(secaoURLQueryString_param : str, 
+                                    dataURLQueryString_param : str, detailDOUJournalFlag : bool):
         
         # Varre todos os DOU da data mencionada no query string param
             
         url_param = DOU_BASE_URL + "?data=" + dataURLQueryString_param + "&secao=" + secaoURLQueryString_param
         
-        return ScraperUtil.run_dontDetailsPage_scraper(url_param)
-
-
-
-    @staticmethod
-    def run_scraper_with_all_params_and_detail_the_dou(secaoURLQueryString_param, dataURLQueryString_param):
-        
-        # Varre todos os DOU da data mencionada no query string param
-            
-        url_param = DOU_BASE_URL + "?data=" + dataURLQueryString_param + "&secao=" + secaoURLQueryString_param
-        
-        
-        # Aqui não compensa utilizar paralelismo ou async, pois é apenas uma chamada para para a página secao=do1
         dou_dontDetails_list_with_jsonArrayField = ScraperUtil.run_dontDetailsPage_scraper(url_param)
-
         
-        return ScraperUtil.run_detailsPage_scraper_using_async(dou_dontDetails_list_with_jsonArrayField)
-    
+        if detailDOUJournalFlag:
+            
+            # Detalhar compensa async, pois são várias requisições para serem realizadas ao mesmo tempo.
+            
+            return ScraperUtil.run_detailsPage_scraper_using_async(dou_dontDetails_list_with_jsonArrayField)
+        
+        return dou_dontDetails_list_with_jsonArrayField
+
     
     
     @staticmethod
@@ -232,26 +194,6 @@ class ScraperUtil:
             loop.close()
 
         return all_dous_with_current_date_moreDetails
-    
-    
-    
-    # @staticmethod
-    # def run_dontDetailsPage_scraper(url_param: str):
-        
-    #     scraper = cfscrape.create_scraper()
-    #     response = scraper.get(url_param)
-        
-    #     if response.status_code == 200:
-                
-    #         result = ScraperUtil.run_beautifulSoup_into_dontDetailsPage(response)
-        
-    #         return result
-        
-    #     else:
-            
-    #         ScraperUtil.logger.error('run_dontDetailsPage_scraper: Erro na requisição para a página dos jornais não detalhados, ' + "error_in_dou_server_side: " + response.text + "status_code: " + response.status_code + "response_obj: " + response)
-            
-    #         return ({"error_in_dou_server_side":response.text, "status_code":response.status_code, "response_obj":response})
     
     
     

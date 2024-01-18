@@ -23,11 +23,12 @@ from django.urls import include, path
 from rest_framework import routers
 
 from trigger_web_scraping_dou_api.views import ScraperViewSet
-from trigger_web_scraping_dou_api.views import JournalJsonArrayOfDOUViewSet
+from trigger_web_scraping_dou_api.views import JournalJsonArrayOfDOUViewSet, DetailSingleJournalOfDOUViewSet
 
 
 router = routers.DefaultRouter()
 router.register(r'journaljsonarrayofdouviewset', JournalJsonArrayOfDOUViewSet)
+router.register(r'detailsinglejournalofdouviewset', DetailSingleJournalOfDOUViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
