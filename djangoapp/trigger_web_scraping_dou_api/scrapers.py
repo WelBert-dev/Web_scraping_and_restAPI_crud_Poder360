@@ -2,6 +2,8 @@ import json
 import cfscrape
 from bs4 import BeautifulSoup
 
+from trigger_web_scraping_dou_api.serializers import DetailSingleJournalOfDOUSerializer
+
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 import os
@@ -342,14 +344,31 @@ class ScraperUtil:
     def make_request_for_others_clone_api(url):
         
         response = requests.get(url)
-        
-        if response.status_code == 200:
-            return response.json()
-        else:
+
+        try:
             
+            if response.status_code == 200:
             
-            raise Exception(f"Erro na requisição para {url}. Status code: {response.status_code}")
-    
+                return response.json()
+            
+            # 500 == Error no servidor do DOU
+            elif response.status_code == 500:
+                
+                print(response.json())
+                
+                print("OCORREU ERROS NA REQUISIÇÃO DO DOU!, OBJETOS COM ERRO ORDENADOS PARA AS PRIMEIRAS POSIÇÕES")
+                
+                return response.json()
+            
+                # raise Exception(f"Erro na requisição para {url}. Status code: {response.status_code}")
+                
+        except requests.exceptions.JSONDecodeError as e:
+            
+                json_string_response = json.dumps({"text": response})
+                
+                return json_string_response
+            
+            # Retorna uma lista da API, então co
     
     
     @staticmethod

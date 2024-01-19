@@ -3,7 +3,11 @@ from trigger_web_scraping_dou_api.models import JournalJsonArrayOfDOU, DetailSin
 
 from django.db import IntegrityError, transaction
 
+from django.db.models import Q
+
 from itertools import chain
+
+import json
 
 class JournalJsonArrayOfDOUService:
 
@@ -42,19 +46,35 @@ class DetailSingleJournalOfDOUService:
 
     @staticmethod
     def insert_into_distinct_journals_and_date_normalize(details_dou_journals_dict):
-        
         created_objects = []
-        print(details_dou_journals_dict)
         for record in details_dou_journals_dict:
-            record['publicado_dou_data'] = datetime.strptime(record['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
+            if isinstance(record, list):
+                for i in record:
+                    i['publicado_dou_data'] = datetime.strptime(i['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
+                    created_objects.append(i)
+                #insere:
+                
 
-            try:
-                with transaction.atomic():
-                    obj = DetailSingleJournalOfDOU.objects.create(**record)
-                    created_objects.append(obj)
-            except IntegrityError as e:
-                print("ERRO AO ISERIR: ",e)
-                print("Objetos inseridos com sucesso: ", created_objects)
-                pass
+            print("\n\n\n")
+            print(record)
+            print("\n\n\n")
+            # record['publicado_dou_data'] = datetime.strptime(record['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
+            # created_objects.append(record)
+                
+   
+        DetailSingleJournalOfDOU.objects.bulk_create([DetailSingleJournalOfDOU(**item) for item in created_objects], ignore_conflicts=True)       
+            
+        
+        # for record in details_dou_journals_dict:
+        #     record['publicado_dou_data'] = datetime.strptime(record['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
+
+        #     try:
+        #         with transaction.atomic():
+        #             obj = DetailSingleJournalOfDOU.objects.create(**record)
+        #             created_objects.append(obj)
+        #     except IntegrityError as e:
+        #         print("ERRO AO ISERIR: ",e)
+        #         print("Objetos inseridos com sucesso: ", created_objects)
+        #         pass
 
     

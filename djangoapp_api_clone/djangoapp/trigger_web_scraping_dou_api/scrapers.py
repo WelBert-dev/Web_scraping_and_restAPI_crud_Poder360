@@ -10,8 +10,6 @@ import asyncio
 
 from concurrent.futures import ProcessPoolExecutor
 
-from aiocfscrape import CloudflareScraper
-
 log_path = os.path.join(os.environ.get('LOG_DIR', '.'), 'scrapers_api2_djangoappclonetwo_log.txt')
 
 logging.basicConfig(filename=log_path, level=logging.ERROR,
@@ -25,12 +23,21 @@ DOU_DETAIL_SINGLE_RECORD_URL=os.getenv('DOU_DETAIL_SINGLE_RECORD_URL', 'https://
 class ScraperUtil:
     
     logger = logging.getLogger("ScraperUtil")
-    
+            
+            
+            
     @staticmethod
-    async def make_request_cloudflare_bypass_async(url):
-        async with CloudflareScraper() as session:
-            async with session.get(url) as resp:
-                return await resp.text()
+    async def make_request_cloudflare_bypass_async_multithreading(url):
+        
+        scraper = cfscrape.create_scraper()
+        
+        try:
+            resp = await asyncio.to_thread(scraper.get, url)
+            return resp
+
+        except Exception as e:
+            print(f"Erro ao fazer a requisição para {url}: {e}")
+            return None  # ou raise alguma exceção, dependendo do comportamento desejado        
         
         
     
@@ -94,12 +101,13 @@ class ScraperUtil:
     @staticmethod
     async def run_beautifulSoup_into_detailsPage_async(response):
         
-        site_html_str = BeautifulSoup(response, "html.parser")
+        site_html_str = BeautifulSoup(response.text, "html.parser")
 
             
         versao_certificada = site_html_str.find('a', {'id': 'versao-certificada'})
         if versao_certificada:
             versao_certificada = versao_certificada.get('href')
+
             
         publicado_dou_data = site_html_str.find('span', {'class': 'publicado-dou-data'})
         if publicado_dou_data:
@@ -158,10 +166,10 @@ class ScraperUtil:
         try:
             
             url_param = DOU_DETAIL_SINGLE_RECORD_URL + url_tile
-            response = await ScraperUtil.make_request_cloudflare_bypass_async(url_param)
+            response = await ScraperUtil.make_request_cloudflare_bypass_async_multithreading(url_param)
+
+            print("Executando raspagem no: " + url_tile)
             
-            print("Executando raspagem no: " + url_tile + "...")
-    
             result_json = await ScraperUtil.run_beautifulSoup_into_detailsPage_async(response)
         
             return result_json   
@@ -170,7 +178,34 @@ class ScraperUtil:
             
             ScraperUtil.logger.error('make_request_to_dou_journal_moreDetail_and_scraping_async: Erro: ' + str(e))
 
-            return f"ERROR NA CHAMADA PARA: {url_tile}, {str(e)}"
+            print(f"ERROR NA CHAMADA PARA: {url_tile}, {str(e)}")    
+            
+            # if str(e) == 'Cannot connect to host www.in.gov.br:443 ssl:default [Connection reset by peer]':
+                
+            return {'ERROR NA CHAMADA PARA': url_tile, 'Exception:':str(e)}
+        
+    
+    
+    # @staticmethod
+    # async def make_request_to_dou_journal_moreDetail_and_scraping_async_again_when_error443(url_tile):
+    #     try:
+            
+    #         url_param = DOU_DETAIL_SINGLE_RECORD_URL + url_tile
+    #         response = await ScraperUtil.make_request_cloudflare_bypass_async(url_param)
+    
+    #         result_json = await ScraperUtil.run_beautifulSoup_into_detailsPage_async(response)
+        
+    #         return result_json   
+            
+    #     except Exception as e:
+            
+    #         ScraperUtil.logger.error('make_request_to_dou_journal_moreDetail_and_scraping_async: Erro: ' + str(e))
+
+    #         print(f"ERROR NA CHAMADA PARA: {url_tile}, {str(e)}")    
+            
+    #         if str(e) == 'Cannot connect to host www.in.gov.br:443 ssl:default [Connection reset by peer]':
+                
+    #         return {'ERROR NA CHAMADA PARA': url_tile, 'Exception:':str(e)}
         
 
 

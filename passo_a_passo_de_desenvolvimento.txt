@@ -1653,3 +1653,109 @@ ENDPOINTS DA API:
 	VARRE TODOS OS DOUS DO DIA; DETALHA; SALVA NO BANCO:
 	
 	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True
+	
+	
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+26o - [TRADE-OF: PERFORMANCE OU NENHUM ERROR?] Rastreando erros nos endpoints de detalhamentos, observei algo:
+
+	- Utilizar a abordagem anterior de chamadas assíncronas com a lib `aiocfscrape` que adiciona uma camada de async no bypass do cloudflare do `cfscrape` para operações brutas de IO (network) combinando `aiohttp` com `cfscrape` (Porisso o nome `aiocfscrape`), de acordo com essas pesquisas realizadas é a melhor estratégia para web scraping que passa mais tempo em estado de espera dos requests do que fazendo a raspagem em sí do site, TEM UMA OBSERVAÇÃO:
+	
+	
+	
+	
+	- NOTEI ALGO IMPORTANTE:
+	
+	
+	
+	
+	- A lib não recebe muitas atualizações a muito tempo, logo, algumas de suas técnicas de bypass para o cloudflare devem não estar funcionando corretamente, pelomenos para os endpoints mais brutos que fazem os detalhamentos dos jornais, pois para outros endpoints funcionou bem. (Percebi que acontece mais com DO3, Talvez por esses dados estarem em servidores mais robustos com firewalls mais modernos e etc.. então enpoints para os detalhamentos dos DO3 é mais protejido).
+	
+	
+	
+	- Ocorreu que testando os 3 cenários a seguir, deu para observar alguns pontos:
+	
+	- DOCUMENTEI: Cada abordagem utilizada foi salvo os resultados completos das raspagens em blocos de notas, para uma melhor visualização do que ocorreu em CADA requisição.
+	
+	
+	
+	
+	
+	- CENÁRIO 1 - Utilizando chamadas assíncronas (`aiocfscrape`) [SAIDAS: ./relatorios/scenario_01_async_with_aiocfscrape.txt]: Foi rápido, porém deu muitos erros nos DO3 (Estratégias de bypass no cloudflare desatualizadas)
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True
+	
+		```
+		@staticmethod
+		async def make_request_cloudflare_bypass_async_with_aiocfscrape(url):
+			async with CloudflareScraper() as session:
+			    async with session.get(url) as resp:
+				return await resp.text()``
+				
+				
+			Tempo de CPU do usuário 	8494.555 ms
+			Tempo de CPU do sistema 	2276.009 ms
+			Tempo total de CPU 		10770.564 ms
+			Tempo decorrido 		109216.886 ms
+			Mudanças de contexto 		6874 voluntário, 2411 involuntário
+	
+	
+					
+				MELHOR ATÉ AGORA: BOA PERFORMANCE E MENOS ERROR: Essa aqui ocorre um erro ou outro, estou rastreando as origens... mas até agora é o que melhor se comportou (em questão de performance e erros)
+				
+				
+	- CENÁRIO 2 - Utilizando multithreading com: [SAIDAS: /scenario_02_multithreading_with_cfscrape.txt]
+						
+	
+	
+		```
+		@staticmethod
+    		async def make_request_cloudflare_bypass_async_multithreading(url):
+	
+			scraper = cfscrape.create_scraper()
+	
+			try:
+		  	  resp = await asyncio.to_thread(scraper.get, url)
+	 	  	 return resp
+
+			except Exception as e:
+	 		   print(f"Erro ao fazer a requisição para {url}: {e}")
+	 		   return None ```
+	 		   
+	 
+	 
+	 - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True	  
+	 
+	 
+	  
+	 		Tempo de CPU do usuário 	15495.015 ms
+			Tempo de CPU do sistema 	6047.688 ms
+			Tempo total de CPU 		21542.703 ms
+			Tempo decorrido 		400719.301 ms
+			Mudanças de contexto 		4880 voluntário, 1620 involuntário
+	 		  
+	
+	
+	
+	
+	
+	- CENÁRIO 3 - Utilizando apenas neste bloco que faz as requisições utilizando o `cfscrape` normal sem a camada async [SAIDAS: /scenario_03_traditional_prog_with_cfscrape.txt]:
+		
+		- PIOR performance de todas, já era de se esperar MASSSS foi a única abordagem que RASPOU TUDO SEM ERROR!
+		
+		PORÉM retronou mais registros do que a quantidade de urlTitle: 
+		
+			- RESULTADO DO DETALHADO: 6140 LINHAS do arquivo
+			- RESULTADO DO NÃO DETALHADO: 3198 Registros no banco.
+			
+			
+			
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True
+	
+	
+			Tempo de CPU do usuário 	38756.132 ms
+			Tempo de CPU do sistema 	22963.200 ms
+			Tempo total de CPU	 	61719.332 ms
+			Tempo decorrido 		1748227.763 ms
+			Mudanças de contexto 		8761 voluntário, 2758 involuntário
