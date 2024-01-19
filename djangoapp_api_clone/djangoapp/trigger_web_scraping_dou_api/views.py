@@ -39,44 +39,81 @@ class ScraperViewSet(APIView):
     
     # Lida com as responses dos handlers abaixo, evitando repetição de cod
     def handle_response(self, response):
+        
+        # CODIGOS EM TESTE, FUNCIONANDO PARA GETALL MAS QUEBRA PARA OUTROS..
+        # VOU PADRONIZAR AS RESPOSTAS DE TODOS ENDPOINTS PARA EVITAR PROBLEMAS DE SERIALIZAÇÃO
       
-        response_normalized = []
-        for i in response:
+        # response_normalized = []
+        # for i in response:
 
-            if isinstance(i, dict): 
+        #     if isinstance(i, dict): 
                 
-                # As vezes ocorrem erros em apenas alguns registros, por conta de certificado SSL,
-                # Mas como só ocorre em ALGUNS, resolvi 
-                if i.get('ERROR NA CHAMADA PARA'):
-                    print("\n\n\n")
-                    print("NOVO OBJ: ", i)
-                    print("\n\n\n")
-                    response_normalized.append({"versao_certificada": i['ERROR NA CHAMADA PARA'], 
-                                                    "publicado_dou_data": "",
-                                                    "edicao_dou_data":"",
-                                                    "secao_dou_data":"",
-                                                    "orgao_dou_data":"",
-                                                    "title":"",
-                                                    "paragrafos":"",
-                                                    "assina":"",
-                                                    "cargo":""})
+        #         # As vezes ocorrem erros em apenas alguns registros, por conta de certificado SSL,
+        #         # Mas como só ocorre em ALGUNS, resolvi 
+        #         if i.get('ERROR NA CHAMADA PARA'):
+        #             print("\n\n\n")
+        #             print("NOVO OBJ: ", i)
+        #             print("\n\n\n")
+        #             response_normalized.append({"versao_certificada": i['ERROR NA CHAMADA PARA'], 
+        #                                             "publicado_dou_data": "",
+        #                                             "edicao_dou_data":"",
+        #                                             "secao_dou_data":"",
+        #                                             "orgao_dou_data":"",
+        #                                             "title":"",
+        #                                             "paragrafos":"",
+        #                                             "assina":"",
+        #                                             "cargo":""})
                 
-                else:
+        #         else:
                     
-                    response_normalized.append(i)
+        #             response_normalized.append(i)
 
-        print("LEN DOS DOUS DETALHADOS: ", len(response_normalized))
+        # print("LEN DOS DOUS DETALHADOS: ", len(response_normalized))
+        
+        #  caminho_arquivo = "./usando_cfscrape_async_with_multithreading.txt"
+
+        # # Abre o arquivo no modo de escrita
+        # with open(caminho_arquivo, 'a') as arquivo:
+        #     # Escreve cada objeto em uma nova linha
+        #     for objeto in response:
+        #         arquivo.write(str(objeto) + '\n')
+        
+        #  return Response(response_normalized, safe=False, status=status.HTTP_200_OK)
+        
+            if isinstance(response, dict):
+            
+                if 'error_in_our_server_side' in response:
+                    
+                    return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                
+                elif 'jsonArray_isEmpty' in response:
+                    
+                    return Response(response, status=status.HTTP_404_NOT_FOUND)
+                
+                elif 'error_in_dou_server_side' in response:
+                    
+                    return Response(response, status=status.HTTP_500_BAD_REQUEST)
+            
+            else:
+                
+                for i in response:
+            
+                    if i == 'error_in_our_server_side':
+                        
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    elif i == 'jsonArray_isEmpty':
+                        
+                        return Response(response, status=status.HTTP_404_NOT_FOUND)
+                    
+                    elif i == 'error_in_dou_server_side':
+                        
+                        return Response(response, status=status.HTTP_500_BAD_REQUEST)
+            
+            return Response(response)
         
     
-        caminho_arquivo = "./usando_cfscrape_async_with_multithreading.txt"
-
-        # Abre o arquivo no modo de escrita
-        with open(caminho_arquivo, 'a') as arquivo:
-            # Escreve cada objeto em uma nova linha
-            for objeto in response:
-                arquivo.write(str(objeto) + '\n')
-    
-        return Response(response_normalized, safe=False, status=status.HTTP_200_OK)
+       
         
         
         
