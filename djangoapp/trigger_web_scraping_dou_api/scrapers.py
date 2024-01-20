@@ -354,17 +354,19 @@ class ScraperUtil:
             # 500 == Error no servidor do DOU
             elif response.status_code == 500:
                 
-                print(response.json())
+                json_data = response.content.decode('utf-8')
                 
                 print("OCORREU ERROS NA REQUISIÇÃO DO DOU!, OBJETOS COM ERRO ORDENADOS PARA AS PRIMEIRAS POSIÇÕES")
                 
-                return response.json()
+                return json_data
             
                 # raise Exception(f"Erro na requisição para {url}. Status code: {response.status_code}")
                 
         except requests.exceptions.JSONDecodeError as e:
             
                 json_string_response = json.dumps({"text": response})
+                
+                
                 
                 return json_string_response
             

@@ -1,80 +1,103 @@
 from datetime import datetime
 from trigger_web_scraping_dou_api.models import JournalJsonArrayOfDOU, DetailSingleJournalOfDOU
 
-from django.db import IntegrityError, transaction
-
-from django.db.models import Q
-
-from itertools import chain
-
-import json
 
 class JournalJsonArrayOfDOUService:
 
     @staticmethod
     def insert_into_distinct_journals_and_date_normalize(dou_journals_jsonArrayField_dict):
         
-        dous_normalized_list = []
-        
-        # Achata a lista em apenas uma, estilo "flatMap" dos fluxos streams no Java:
-        # Achatar é unir todos os objetos da lista interna em apenas uma.
-        flat_list = []
-        if isinstance(dou_journals_jsonArrayField_dict, list): # QUando tem do1, do2 e do3
-            if len(dou_journals_jsonArrayField_dict) == 3:
-                flat_list = [item for sublist in dou_journals_jsonArrayField_dict for inner_list in sublist for item in inner_list]
-            else:
-                
-                flat_list = list(chain.from_iterable(dou_journals_jsonArrayField_dict))
-
-        elif isinstance(dou_journals_jsonArrayField_dict, dict):
+        all_dous_records_normalized = []
+        if len(dou_journals_jsonArrayField_dict) == 3: # Lista coontendo as 3 seções: DO1, DO2, e DO3
             
-            dict_list = list(dou_journals_jsonArrayField_dict.values())
+            # Achata a lista em apenas uma, estilo "flatMap" dos fluxos streams no Java:
+            dou_journals_jsonArrayField_dict = [item for sublist in dou_journals_jsonArrayField_dict for inner_list in sublist for item in inner_list]
             
-            flat_list = list(chain.from_iterable(dict_list))
-            
-        for single_dou_journal_value in flat_list:
-            single_dou_journal_value['pubDate'] = datetime.strptime(single_dou_journal_value['pubDate'], "%d/%m/%Y").strftime("%Y-%m-%d")
-            dous_normalized_list.append(single_dou_journal_value)
+            for record in dou_journals_jsonArrayField_dict:
+                record['pubDate'] = datetime.strptime(record['pubDate'], "%d/%m/%Y").strftime("%Y-%m-%d")
+                # Aproveita o mesmo looping para appender na lista se o objeto não existir no banco, 
+                # para depois inserir tudo em massa na mesma query.
+                all_dous_records_normalized.append(record)
+        else:
+            for record in dou_journals_jsonArrayField_dict: # Lista contendo apenas 1 dos DOU
+                for i in record:
+                    i['pubDate'] = datetime.strptime(i['pubDate'], "%d/%m/%Y").strftime("%Y-%m-%d")
+                    # Aproveita o mesmo looping para appender na lista se o objeto não existir no banco, 
+                    # para depois inserir tudo em massa na mesma query.
+                    all_dous_records_normalized.append(i)
            
         # ignore_conflicts=True continua a inserir os objetos em cascata e quando encontra duplicatas não insere (ignora esse elemento) e continua operação..
         # Removi mais verificações para ganho de performance. (Desta forma esta resolvendo bem e não está duplicado, mais testes vão ser implementados no tests.py depois)
-        JournalJsonArrayOfDOU.objects.bulk_create([JournalJsonArrayOfDOU(**item) for item in dous_normalized_list], ignore_conflicts=True)
-        
-        
+        JournalJsonArrayOfDOU.objects.bulk_create([JournalJsonArrayOfDOU(**item) for item in all_dous_records_normalized], ignore_conflicts=True)
+                
+                
 
 class DetailSingleJournalOfDOUService:
 
     @staticmethod
     def insert_into_distinct_journals_and_date_normalize(details_dou_journals_dict):
-        created_objects = []
-        for record in details_dou_journals_dict:
-            if isinstance(record, list):
-                for i in record:
-                    i['publicado_dou_data'] = datetime.strptime(i['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
-                    created_objects.append(i)
-                #insere:
-                
-
-            print("\n\n\n")
-            print(record)
-            print("\n\n\n")
-            # record['publicado_dou_data'] = datetime.strptime(record['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
-            # created_objects.append(record)
-                
-   
-        DetailSingleJournalOfDOU.objects.bulk_create([DetailSingleJournalOfDOU(**item) for item in created_objects], ignore_conflicts=True)       
-            
         
-        # for record in details_dou_journals_dict:
-        #     record['publicado_dou_data'] = datetime.strptime(record['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
+        print(details_dou_journals_dict)
+        print("\n\n\n")
+        print(len(details_dou_journals_dict))
+        print("\n\n\n")
+            
+        not_exists_records_list = []
+        for record in details_dou_journals_dict:
+        
+            if isinstance(record, list): # Lista é para as 3 seções do dou.
+                for i in record:
+                    # print("\n\n\nVALOR DE I:")
+                    # print(i)
+                    # print("\n\n\n")
+                    # print("TYPE DE IIIIIIIIIII")
+                    # print(type(i))
+                    # print("\n\n\n")
+                    
+                    if i['publicado_dou_data'] and i['versao_certificada']:
+                        i['publicado_dou_data'] = datetime.strptime(i['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
+                        DetailSingleJournalOfDOUService.append_record_if_not_exists(i, not_exists_records_list)
+                    else:
+                        # OBEJETO NULL, CAÇANDO PROBLEMAS..
+                        print("ANTENÇÃO, UM DOS OBJETOS A INSERIR ERA NULL, PROBLEMA SENDO RASTREADO... MAS OUTROS ESTÃO INTEGROS! ;D")
 
-        #     try:
-        #         with transaction.atomic():
-        #             obj = DetailSingleJournalOfDOU.objects.create(**record)
-        #             created_objects.append(obj)
-        #     except IntegrityError as e:
-        #         print("ERRO AO ISERIR: ",e)
-        #         print("Objetos inseridos com sucesso: ", created_objects)
-        #         pass
+            elif isinstance(record, dict): # dict, é quando só foi solicitado uma das seções do dou.
+                record['publicado_dou_data'] = datetime.strptime(record['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
+                
+                # Aproveita o mesmo looping para appender na lista se o objeto não existir no banco, 
+                # para depois inserir tudo em massa na mesma query.
+                DetailSingleJournalOfDOUService.append_record_if_not_exists(record, not_exists_records_list)
+        
+        print("\n\n\n")
+        print("LEN DA LISTA A INSERIR (not_exists_records_list, details): ", len(not_exists_records_list))
+        print("\n\n\n")
+        print("LEN DA LISTA ORIGINAL (details_dou_journals_dict, details): ", len(details_dou_journals_dict))
+        print("\n\n\n")
+        
+        
+        # Utiliza a verificação CAMPO A CAMPO, pois apenas delegar para o ORM está inserindo duplicatas.
+        # Devemos verificar tudo, pois não existe algum atributo que é UNICO para cad jornal, nem mesmo
+        # a url da versão certificada (Pois essa URL se trata de uma página no jornal que contém mais registros)
+   
+        DetailSingleJournalOfDOU.objects.bulk_create([DetailSingleJournalOfDOU(**item) for item in not_exists_records_list], ignore_conflicts=True)       
+            
 
-    
+
+    @staticmethod 
+    def append_record_if_not_exists(single_journal_record, not_exists_records_list : list):
+        
+        if not DetailSingleJournalOfDOU.objects.filter(versao_certificada=single_journal_record['versao_certificada'], 
+                                                    publicado_dou_data=single_journal_record['publicado_dou_data'],
+                                                    edicao_dou_data=single_journal_record['edicao_dou_data'],
+                                                    secao_dou_data=single_journal_record['secao_dou_data'],
+                                                    orgao_dou_data=single_journal_record['orgao_dou_data'],
+                                                    title=single_journal_record['title'],
+                                                    paragrafos=single_journal_record['paragrafos'],
+                                                    assina=single_journal_record['assina'],
+                                                    cargo=single_journal_record['cargo']).exists():
+
+                not_exists_records_list.append(single_journal_record)
+                
+                
+
+            

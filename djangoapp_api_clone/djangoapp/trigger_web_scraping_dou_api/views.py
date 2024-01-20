@@ -109,6 +109,26 @@ class ScraperViewSet(APIView):
                     elif i == 'error_in_dou_server_side':
                         
                         return Response(response, status=status.HTTP_500_BAD_REQUEST)
+                    
+                    
+
+                    # if isinstance(i, dict): 
+                        
+                    #     # As vezes ocorrem erros em apenas alguns registros, por conta de certificado SSL,
+                    #     # Mas como só ocorre em ALGUNS, resolvi 
+                    #     if i.get('ERROR NA CHAMADA PARA'):
+                    #         print("\n\n\n")
+                    #         print("NOVO OBJ: ", i)
+                    #         print("\n\n\n")
+                    #         i = {"versao_certificada": i['ERROR NA CHAMADA PARA'], 
+                    #              "publicado_dou_data": "",
+                    #              "edicao_dou_data":"",
+                    #              "secao_dou_data":"",
+                    #              "orgao_dou_data":"",
+                    #              "title":"",
+                    #              "paragrafos":"",
+                    #              "assina":"",
+                    #              "cargo":""}
             
             return Response(response)
         

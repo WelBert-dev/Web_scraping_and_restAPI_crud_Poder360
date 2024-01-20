@@ -10,6 +10,6 @@ class DateUtil:
         saopaulo_tz = pytz.timezone('America/Sao_Paulo')
         date_sp_now = date_utc_now.replace(tzinfo=pytz.utc).astimezone(saopaulo_tz)
         
-        # date_sp_now = date_sp_now - timedelta(days=1)
+        date_sp_now = date_sp_now - timedelta(days=1)
         
         return date_sp_now.strftime("%d-%m-%Y")

@@ -1759,3 +1759,378 @@ ENDPOINTS DA API:
 			Tempo total de CPU	 	61719.332 ms
 			Tempo decorrido 		1748227.763 ms
 			Mudanças de contexto 		8761 voluntário, 2758 involuntário
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+26o - Correção de bugs: Como a tarefa exigia não duplicar códigos similares, eu extraí as verificações da resposta da API em um único bloco, mas isso tornou o código meio acoplado, então vou padronizar as respostas de TODOS endpoints, para evitar problemas de serialização na API MAIN.
+
+
+
+ENPOINTS FUNCIONANDO MESMO COM ESSE ACOPLAMENTO (DEVIDO AOS REQUISITOS DA TAREFA DE EVITAR DUPLICAÇÃO DE COD):
+
+
+
+- Lembrando que os enpoints que NÃO utiliza a flag `saveInDBFlag=True` são BEM MENOS performáticos, pois a API cospe toda a massa de dados de uma só vez, então isso afeta a renderização do DOM (se estiver executando no browser); 
+
+
+
+- Já os enpoints com a flag `saveInDBFlag=True` são mais performáticos, pois após toda a raspagem e salvamento em banco, o cliente é redirecionado para o endpoint que faz a consulta direto na API do banco, e retorna uma ViewSet com páginação, ou seja, não sobrecarrega a renderização do DOM.
+
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=True
+
+		docker exec -it psql psql -U CHANGE-ME -d db_poder360
+		DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=True
+
+		DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou;
+
+		OU NÃO PRECISA APAGAR POIS NÃO ESTA INSERINDO DUPLICATAS! 
+
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=18-01-2024&saveInDBFlag=True
+
+
+
+
+			ENPOINTS COM ALGUMAS OBSERVAÇÕES DITAS NO ULTIMO COMMIT: (Podem apresentar problemas de serialização, por conta do acoplamento nas respostas.. mas em breve estara 100% funcional ;D)
+
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True
+
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&detailDOUJournalFlag=True&saveInDBFlag=True
+
+
+	OBS: ESSAS ROTAS DE DETALHAMENTO PARA AS 3 SEÇÕES DOS DOUS: Esse algoritmo vai ser melhorado, pois geralmente a seção `do3` tem mais dados, logo, as duas outras instâncias clones da API terminam primeiro e ficam ocilando. A ideia é: Fazer cada API processar 1/3 dos dados e enviar os outros 2/3 para serem divididos entre as outras duas instâncias da API, desta forma podemos GARANTIR que todas as APIS vão processar a mesma quantidade de dados.  
+	
+	
+-------------------------------------------------------------------------------------------------------------------------------
+
+27o - Correção de bugs nos endpoints de detalhamentos finalizado:
+
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&detailDOUJournalFlag=True&saveInDBFlag=True
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2&detailDOUJournalFlag=True&saveInDBFlag=True
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3&detailDOUJournalFlag=True&saveInDBFlag=True
+
+
+
+Toda vez que executado o salvamento dos jornais com detalhamentos, ocorriam erros na inserção:
+
+
+	- Erro invisivel, pois não exibia nenhum exceção, e esse problema estava na seguinte linha do model `DetailSingleJournalOfDOU`:
+		```
+		DetailSingleJournalOfDOU.objects.bulk_create([DetailSingleJournalOfDOU(**item) for item in not_exists_records_list], ignore_conflicts=True)```    
+		
+	
+	- O erro ocorria pois a ORM do django utiliza a coluna `id` para evitar duplicatas na inserção, porém como não existe esse campo no html de raspagem, eu tive que definir outro atributo do objeto para utilizar nesta verificação.
+	
+	- O atributo escolhido foi o `versao_certificada`, pois eu ACHAVA que esse atributo era UNICO para cada registro, PORÉM não é, pois essa versão certificada aponta para o jornal, e nesta página do jornal possuem OUTROS registros, ou seja, não se tratava de APENAS um dos atos, mas sim de vários outros, conforme mostrado a seguir:
+	
+	
+	
+		db_poder360=# SELECT title FROM trigger_web_scraping_dou_api_detailsinglejournalofdou WHERE "versao_certificada" = 'http://pesquisa.in.gov.br/imprensa/jsp/visualiza/index.jsp?data=19/01/2024&jornal=529&pagina=1';
+		
+		
+		
+		
+					    title                    
+			---------------------------------------------
+			 PORTARIA Nº 1.552, DE 16 DE JANEIRO DE 2024
+			 PORTARIA Nº 1.547, DE 16 DE JANEIRO DE 2024
+			 PORTARIA Nº 6, DE 18 DE JANEIRO DE 2024
+			 PORTARIA Nº 1.555, DE 16 DE JANEIRO DE 2024
+			 PORTARIAS DE 18 DE JANEIRO DE 2024
+			 PORTARIA Nº 1.551, DE 16 DE JANEIRO DE 2024
+			 
+			(6 rows)
+			
+	
+	- SOLUÇÃO: Utilizar TODOS os atributos do objeto para garantir DISTINCT.
+	
+	- OBS: Como esse erro não estava visivel no outro model para os registros dos jornais não detalhados ``
+	
+	
+	
+	- MESMO ASSIM EU REFORÇEI CONFIGURANDO A ORM PARA UTILIZAR O ATRIBUTO `urlTitle` NAS VERIFICAÇÕES DE DUPLICATAS:
+	
+			class JournalJsonArrayOfDOU(models.Model):
+			    id = models.AutoField(primary_key=True)
+			    pubName = models.CharField(null=True)
+			    urlTitle = models.CharField(unique=True)        <----- BASTA DEFINIR ESSA CONSTRAINT
+			    numberPage = models.IntegerField(null=True)
+			    subTitulo = models.TextField(null=True)
+			    titulo = models.TextField(null=True)
+			    title = models.TextField(null=True)
+			    pubDate = models.DateField(null=True)
+			    content = models.TextField(null=True)
+			    editionNumber = models.IntegerField(null=True)
+			    hierarchyLevelSize = models.IntegerField(null=True)
+			    artType = models.CharField(null=True)
+			    pubOrder = models.CharField(null=True)
+			    hierarchyStr = models.TextField(null=True)
+			    hierarchyList = models.JSONField(null=True)
+	
+	
+		POIS `urlTitle` é um atributo que o valor sempre é diferente entre os registros (Conforme visto na query a seguir), logo, podemos utilizar ele para garantir DISTINCT. (Aparentemente os resultados são os mesmos que os anteriores (sem definir essa constraint), mas resolvi reforçar essa validação.
+		
+		db_poder360=# SELECT content from trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "urlTitle" = 'portaria-n-9-de-18-de-janeiro-de-2024-538
+		
+		
+							content
+			---------------------------------------------------------------------------                                                                                                                                                                                                                                 
+			
+				 PORTARIA Nº 9, DE 18 DE JANEIRO DE 2024 O(A) SECRETÁRIA DO AUDIOVISUAL, no uso de suas atribuições legais, que lhe confere a Portaria nº 1.408, de 31 de janeiro de 2023 e o art. 1º da Portaria nº 1.201, de 18 de dezembro de 2009, resolve: Art. 1.º - Aprovar o(s) projeto(s) cultural(is), relacionado(s) no(s) anexo(s) desta Portaria, para o(s) qual(is) o(s) proponente(s) fica(m) autorizado(s) a capt...
+				 
+				(1 row)   <--- APENAS 1 Linha afetada em 3182 Registros (19-01-2024)
+				
+				
+				
+
+	ATENÇÃO, SEMPRE RESETE O CONTAINER PARA GARANTIR ATUALIZAÇÃO CORRETA:
+	
+		 $ sudo rm -r ./data/  
+	         $ docker stop $(sudo docker ps -a -q) ; sudo docker system prune -f ; sudo docker rm -vf $(sudo docker ps -aq) ; sudo docker rmi -f $(sudo docker images -aq) ;   
+	
+	
+
+	
+	PARA FACILITAR A VERIFICAÇÃO DA INTEGRIDADE DOS RESULTADOS:
+	
+	
+	docker exec -it psql psql -U CHANGE-ME -d db_poder360 <---- Executar comandos no container do postegresql pelo bash
+	
+	
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou; <---- Apaga os registros da tabela dos DOU's NÃO DETALHADOS.
+	
+	
+	DELETE FROM trigger_web_scraping_dou_api_journaljsonarrayofdou WHERE "pubName" = 'DO1'; <--- Apaga apenas os registros do DO1 - NÃO DETALHADO.
+	
+	
+	- GET 127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=True <--- Faz a consulta do DO1 NÃO DETALHADO para verificar integridade (Pode executar várias vezes que NÃO VAI DUPLICAR os elementos).
+	
+	
+	
+	
+	DELETE FROM trigger_web_scraping_dou_api_detailsinglejournalofdou; <---- Apaga os registros da tabela dos DOU's DETALHADOS.
+	
+	
+	
+	ENDPOINTS: OBS SEMPRE UTILIZAR `&saveInDBFlag=True` nos parâmetros pois esses são os endpoints mais rápidos, motivos informados nos ultimos commits! ;D
+	
+	
+	NÃO DETALHADO (NOVOS E MAIS RÁPIDOS + ANTIGOS DO ULTIMO E-MAIL: 
+	
+	
+	
+
+	VARRENDO COM NENHUM PARAMETRO, TODOS DO1, DO2 e DO3 DO DIA
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=True
+	
+	
+	
+	
+	VARRENDO COM SEÇÃO (MAIS RÁPIDO QUE OUTRO): 
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&saveInDBFlag=True
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2&saveInDBFlag=True
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3&saveInDBFlag=True
+	
+	
+	
+	
+	VARRENDO COM DATA (MAIS RÁPIDO QUE OUTRO): 
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=12-01-2024&saveInDBFlag=true
+	
+	
+	
+	
+	VARRENDO COM DATA E SEÇÃO (MAIS RÁPIDO QUE OUTRO): 
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&data=12-01-2024&saveInDBFlag=True
+	
+	
+	
+	- ENPOINT QUE FAZ A REQUISIÇÃO PARA O BANCO DOS REGISTROS NÃO DETALHADOS: http://127.0.0.1:8000/db_dou_api/journaljsonarrayofdouviewset/
+	
+	
+	
+	
+	
+	DETALHADOS: Obs: Mesmo aplicando lógicas de retentaivas quando falha a requisição no servidor do gov, as vezes menos de 10 elementos vem com valores nullos, mas basta fazer a mesma requisição novamente que pode conseguir + elementos, fique tranquilo pois o sistema não insere duplicatas ou valores NULL!! Vou implementar uma lógica de retentativa mais robusta. Mas já esta usável rsrs.. ;D 
+	
+	VARRENDO COM NENHUM PARAMETRO, TODOS DO1, DO2 e DO3 DO DIA (MAIS RÁPIDO QUE OUTRO)
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True
+	
+	
+	
+	
+	VARRENDO COM SEÇÃO (MAIS RÁPIDO QUE OUTRO): 
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&detailDOUJournalFlag=True&saveInDBFlag=True
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do2&detailDOUJournalFlag=True&saveInDBFlag=True
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do3&detailDOUJournalFlag=True&saveInDBFlag=True
+	
+	
+	
+	
+	VARRENDO COM DATA (MAIS RÁPIDO QUE OUTRO): 
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?data=12-01-2024&detailDOUJournalFlag=True&saveInDBFlag=true
+	
+	
+	
+	
+	VARRENDO COM DATA E SEÇÃO (MAIS RÁPIDO QUE OUTRO): 
+	
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?secao=do1&data=12-01-2024&detailDOUJournalFlag=True&saveInDBFlag=True
+	
+	
+	
+	- ENPOINT QUE FAZ A REQUISIÇÃO PARA O BANCO DOS REGISTROS DETALHADOS: http://127.0.0.1:8000/db_dou_api/detailsinglejournalofdouviewset/
+	
+            
+            
+#  OBS: CASO OCORRER O SEGUINTE ERROR:
+``
+djangoapp              | Internal Server Error: /trigger_web_scraping_dou_api/
+djangoapp              | Traceback (most recent call last):
+djangoapp              |   File "/venv/lib/python3.11/site-packages/urllib3/connection.py", line 174, in _new_conn
+djangoapp              |     conn = connection.create_connection(
+djangoapp              |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 73, in create_connection
+djangoapp              |     for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+djangoapp              |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/usr/local/lib/python3.11/socket.py", line 962, in getaddrinfo
+djangoapp              |     for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+djangoapp              |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              | socket.gaierror: [Errno -3] Try again
+djangoapp              | 
+djangoapp              | During handling of the above exception, another exception occurred:
+djangoapp              | 
+djangoapp              | Traceback (most recent call last):
+djangoapp              |   File "/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 699, in urlopen
+djangoapp              |     httplib_response = self._make_request(
+djangoapp              |                        ^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 394, in _make_request
+djangoapp              |     conn.request(method, url, **httplib_request_kw)
+djangoapp              |   File "/venv/lib/python3.11/site-packages/urllib3/connection.py", line 239, in request
+djangoapp              |     super(HTTPConnection, self).request(method, url, body=body, headers=headers)
+djangoapp              |   File "/usr/local/lib/python3.11/http/client.py", line 1283, in request
+djangoapp              |     self._send_request(method, url, body, headers, encode_chunked)
+djangoapp              |   File "/usr/local/lib/python3.11/http/client.py", line 1329, in _send_request
+djangoapp              |     self.endheaders(body, encode_chunked=encode_chunked)
+djangoapp              |   File "/usr/local/lib/python3.11/http/client.py", line 1278, in endheaders
+djangoapp              |     self._send_output(message_body, encode_chunked=encode_chunked)
+djangoapp              |   File "/usr/local/lib/python3.11/http/client.py", line 1038, in _send_output
+djangoapp              |     self.send(msg)
+djangoapp              |   File "/usr/local/lib/python3.11/http/client.py", line 976, in send
+djangoapp              |     self.connect()
+djangoapp              |   File "/venv/lib/python3.11/site-packages/urllib3/connection.py", line 205, in connect
+djangoapp              |     conn = self._new_conn()
+djangoapp              |            ^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/urllib3/connection.py", line 186, in _new_conn
+djangoapp              |     raise NewConnectionError(
+djangoapp              | urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x7f89d26166d0>: Failed to establish a new connection: [Errno -3] Try again
+djangoapp              | 
+djangoapp              | During handling of the above exception, another exception occurred:
+djangoapp              | 
+djangoapp              | Traceback (most recent call last):
+djangoapp              |   File "/venv/lib/python3.11/site-packages/requests/adapters.py", line 486, in send
+djangoapp              |     resp = conn.urlopen(
+djangoapp              |            ^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 755, in urlopen
+djangoapp              |     retries = retries.increment(
+djangoapp              |               ^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 574, in increment
+djangoapp              |     raise MaxRetryError(_pool, url, error or ResponseError(cause))
+djangoapp              | urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='djangoappclonetwo', port=8002): Max retries exceeded with url: /trigger_web_scraping_dou_api/?secao=do2&data=19-01-2024 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f89d26166d0>: Failed to establish a new connection: [Errno -3] Try again'))
+djangoapp              | 
+djangoapp              | During handling of the above exception, another exception occurred:
+djangoapp              | 
+djangoapp              | Traceback (most recent call last):
+djangoapp              |   File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+djangoapp              |     response = get_response(request)
+djangoapp              |                ^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+djangoapp              |     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+djangoapp              |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+djangoapp              |     return view_func(*args, **kwargs)
+djangoapp              |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+djangoapp              |     return self.dispatch(request, *args, **kwargs)
+djangoapp              |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+djangoapp              |     response = self.handle_exception(exc)
+djangoapp              |                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+djangoapp              |     self.raise_uncaught_exception(exc)
+djangoapp              |   File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+djangoapp              |     raise exc
+djangoapp              |   File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+djangoapp              |     response = handler(request, *args, **kwargs)
+djangoapp              |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 58, in get
+djangoapp              |     return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag)
+djangoapp              |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 192, in handle_URL_empty_params
+djangoapp              |     response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag)
+djangoapp              |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 294, in run_scraper_with_empty_params_using_clone_instances
+djangoapp              |     return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+djangoapp              |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 336, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+djangoapp              |     all_dous_response = list(executor.map(ScraperUtil.make_request_for_others_clone_api,
+djangoapp              |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 619, in result_iterator
+djangoapp              |     yield _result_or_cancel(fs.pop())
+djangoapp              |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 317, in _result_or_cancel
+djangoapp              |     return fut.result(timeout)
+djangoapp              |            ^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 456, in result
+djangoapp              |     return self.__get_result()
+djangoapp              |            ^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+djangoapp              |     raise self._exception
+djangoapp              |   File "/usr/local/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+djangoapp              |     result = self.fn(*self.args, **self.kwargs)
+djangoapp              |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 346, in make_request_for_others_clone_api
+djangoapp              |     response = requests.get(url)
+djangoapp              |                ^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/requests/api.py", line 73, in get
+djangoapp              |     return request("get", url, params=params, **kwargs)
+djangoapp              |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+djangoapp              |     return session.request(method=method, url=url, **kwargs)
+djangoapp              |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+djangoapp              |     resp = self.send(prep, **send_kwargs)
+djangoapp              |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+djangoapp              |     r = adapter.send(request, **kwargs)
+djangoapp              |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+djangoapp              |   File "/venv/lib/python3.11/site-packages/requests/adapters.py", line 519, in send
+djangoapp              |     raise ConnectionError(e, request=request)
+djangoapp              | requests.exceptions.ConnectionError: HTTPConnectionPool(host='djangoappclonetwo', port=8002): Max retries exceeded with url: /trigger_web_scraping_dou_api/?secao=do2&data=19-01-2024 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f89d26166d0>: Failed to establish a new connection: [Errno -3] Try again'))
+djangoapp              | [19/Jan/2024 23:48:42] "GET /trigger_web_scraping_dou_api/?saveInDBFlag=1 HTTP/1.1" 500 247753
+djangoapp              | /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+^CGracefully stopping... (press Ctrl+C again to force)
+``
+
+
+## BASTA RE-BUILDAR O DOCKER E REINICIAR TUDO, ESTOU RASTREANDO ESSE ERRO! ;D 
+
+### Quando faz isso funciona denovo:
+
+```bash
+$ cd ./web
+$ sudo rm -r ./data/
+$ docker stop $(sudo docker ps -a -q) ; sudo docker system prune -f ; sudo docker rm -vf $(sudo docker ps -aq) ; sudo docker rmi -f $(sudo docker images -aq)
+$ docker-compose up --build --force-recreate
+```	

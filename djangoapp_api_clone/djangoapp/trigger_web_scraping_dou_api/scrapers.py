@@ -8,6 +8,8 @@ import logging
 
 import asyncio
 
+from tenacity import retry, wait_fixed
+
 from concurrent.futures import ProcessPoolExecutor
 
 log_path = os.path.join(os.environ.get('LOG_DIR', '.'), 'scrapers_api2_djangoappclonetwo_log.txt')
@@ -19,23 +21,24 @@ logging.basicConfig(filename=log_path, level=logging.ERROR,
 DOU_BASE_URL=os.getenv('DOU_BASE_URL', 'https://www.in.gov.br/leiturajornal') 
 DOU_DETAIL_SINGLE_RECORD_URL=os.getenv('DOU_DETAIL_SINGLE_RECORD_URL', 'https://www.in.gov.br/en/web/dou/-/') 
 
+scraper = cfscrape.create_scraper()
 
 class ScraperUtil:
     
     logger = logging.getLogger("ScraperUtil")
             
-            
-            
     @staticmethod
+    # @retry(wait=wait_fixed(2))
+    @retry
     async def make_request_cloudflare_bypass_async_multithreading(url):
         
-        scraper = cfscrape.create_scraper()
-        
         try:
-            resp = await asyncio.to_thread(scraper.get, url)
+            resp = await asyncio.to_thread(scraper.get, url, timeout=10)
             return resp
 
         except Exception as e:
+            
+            
             print(f"Erro ao fazer a requisição para {url}: {e}")
             return None  # ou raise alguma exceção, dependendo do comportamento desejado        
         
@@ -57,14 +60,14 @@ class ScraperUtil:
             
             return ScraperUtil.run_detailsPage_scraper_using_async(dou_dontDetails_list_with_jsonArrayField)
         
-        return dou_dontDetails_list_with_jsonArrayField
+        return list(dou_dontDetails_list_with_jsonArrayField)
 
     
     
     @staticmethod
     def run_dontDetailsPage_scraper(url_param: str):
         
-        scraper = cfscrape.create_scraper()
+        # scraper = cfscrape.create_scraper()
         response = scraper.get(url_param)
 
         if response.status_code == 200:
@@ -180,9 +183,10 @@ class ScraperUtil:
 
             print(f"ERROR NA CHAMADA PARA: {url_tile}, {str(e)}")    
             
+            
             # if str(e) == 'Cannot connect to host www.in.gov.br:443 ssl:default [Connection reset by peer]':
                 
-            return {'ERROR NA CHAMADA PARA': url_tile, 'Exception:':str(e)}
+            # return {'ERROR NA CHAMADA PARA': url_tile, 'Exception:':str(e)}
         
     
     

@@ -3,7 +3,7 @@ from django.db import models
 class JournalJsonArrayOfDOU(models.Model):
     id = models.AutoField(primary_key=True)
     pubName = models.CharField(null=True)
-    urlTitle = models.CharField()
+    urlTitle = models.CharField(unique=True)
     numberPage = models.IntegerField(null=True)
     subTitulo = models.TextField(null=True)
     titulo = models.TextField(null=True)
@@ -24,12 +24,12 @@ class JournalJsonArrayOfDOU(models.Model):
     
 class DetailSingleJournalOfDOU(models.Model):
     id = models.AutoField(primary_key=True)
-    versao_certificada = models.URLField()
+    versao_certificada = models.URLField(unique=False)
     publicado_dou_data = models.DateField(null=True)
     edicao_dou_data = models.CharField(null=True)
     secao_dou_data = models.CharField(null=True)
     orgao_dou_data = models.TextField(null=True)
-    title = models.CharField(null=True)
+    title = models.CharField(unique=False)
     paragrafos = models.TextField(null=True)
     assina = models.CharField(null=True)
     cargo = models.CharField(null=True)
