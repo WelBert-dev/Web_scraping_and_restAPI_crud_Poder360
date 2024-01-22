@@ -1919,7 +1919,7 @@ Toda vez que executado o salvamento dos jornais com detalhamentos, ocorriam erro
 	ENDPOINTS: OBS SEMPRE UTILIZAR `&saveInDBFlag=True` nos parâmetros pois esses são os endpoints mais rápidos, motivos informados nos ultimos commits! ;D
 	
 	
-	NÃO DETALHADO (NOVOS E MAIS RÁPIDOS + ANTIGOS DO ULTIMO E-MAIL: 
+	NÃO DETALHADO (NOVOS E MAIS RÁPIDOS + ANTIGOS DO ULTIMO E-MAIL): 
 	
 	
 	

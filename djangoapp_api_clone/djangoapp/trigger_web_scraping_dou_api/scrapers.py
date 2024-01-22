@@ -8,7 +8,7 @@ import logging
 
 import asyncio
 
-from tenacity import retry, wait_fixed
+from tenacity import retry, wait_random
 
 from concurrent.futures import ProcessPoolExecutor
 
@@ -23,24 +23,40 @@ DOU_DETAIL_SINGLE_RECORD_URL=os.getenv('DOU_DETAIL_SINGLE_RECORD_URL', 'https://
 
 scraper = cfscrape.create_scraper()
 
+# Exception apenas para o retry do tenacity capturar e re-executar novamente a requisição, até conseguir 100% dos resultados esperados...
+# Condições de break não realizadas, correndo riscos de entrar em looping eterno caso o servidor do gov fique indisponível..
+# Mas agora está retornando 100% dos resultados esperados!
+class StatusCodeError(Exception):
+    pass
+
 class ScraperUtil:
     
     logger = logging.getLogger("ScraperUtil")
             
     @staticmethod
-    # @retry(wait=wait_fixed(2))
-    @retry
+    @retry()
     async def make_request_cloudflare_bypass_async_multithreading(url):
-        
+      
+        resp = await asyncio.to_thread(scraper.get, url, timeout=10)
+    
         try:
-            resp = await asyncio.to_thread(scraper.get, url, timeout=10)
-            return resp
+            if resp.status_code != 200:
+            
+                print("STATUS CODE != 200 para: " + url)
+                
+                # Re-lança a exception para o retry capturar e executar novamente...
+                # Em casos aonde o objeto response é existente, porém deu erro na resposta do gov side
+                raise StatusCodeError("Erro para: "+ url +f"de status code: {resp.status_code}")
+        except:
+            
+            # Re-lança a exception para o retry capturar e executar novamente...
+            # Em casos aonde o objeto response é inexistente
+            
+            raise StatusCodeError("Erro para: "+ url +f"de status code: {resp.status_code}")
+        return resp 
 
-        except Exception as e:
-            
-            
-            print(f"Erro ao fazer a requisição para {url}: {e}")
-            return None  # ou raise alguma exceção, dependendo do comportamento desejado        
+        #print(f"Erro ao fazer a requisição para {url}: {e}")
+           
         
         
     
