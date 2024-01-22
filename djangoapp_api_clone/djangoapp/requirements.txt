@@ -8,8 +8,4 @@ cfscrape
 
 django-debug-toolbar
 
-retrying
-
 tenacity
-
-async_timeout

@@ -8,7 +8,7 @@ import logging
 
 import asyncio
 
-from tenacity import retry, wait_random
+from tenacity import retry
 
 from concurrent.futures import ProcessPoolExecutor
 
@@ -53,6 +53,7 @@ class ScraperUtil:
             # Em casos aonde o objeto response é inexistente
             
             raise StatusCodeError("Erro para: "+ url +f"de status code: {resp.status_code}")
+        
         return resp 
 
         #print(f"Erro ao fazer a requisição para {url}: {e}")

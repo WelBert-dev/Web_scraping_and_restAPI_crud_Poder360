@@ -12,7 +12,7 @@ import requests
 
 import asyncio
 
-from aiocfscrape import CloudflareScraper
+from tenacity import retry
 
 import logging
 
@@ -37,20 +37,45 @@ URL_API3_CLONE_INSTANCE_DJANGOAPPCLONETHREE=os.getenv('URL_API3_CLONE_INSTANCE_D
                                                          'http://djangoappclonethree:8003/') 
 
 
+scraper = cfscrape.create_scraper()
+
+# Exception apenas para o retry do tenacity capturar e re-executar novamente a requisição, até conseguir 100% dos resultados esperados...
+# Condições de break não realizadas, correndo riscos de entrar em looping eterno caso o servidor do gov fique indisponível..
+# Mas agora está retornando 100% dos resultados esperados!
+class StatusCodeError(Exception):
+    pass
+
+
 class ScraperUtil:
     
     logger = logging.getLogger("ScraperUtil")
     
     @staticmethod
-    async def make_request_cloudflare_bypass_async(url):
-        async with CloudflareScraper() as session:
-            async with session.get(url) as resp:
-                return await resp.text()
+    @retry()
+    async def make_request_cloudflare_bypass_async_multithreading(url):
+      
+        resp = await asyncio.to_thread(scraper.get, url, timeout=10)
+    
+        try:
+            if resp.status_code != 200:
+            
+                print("STATUS CODE != 200 para: " + url)
+                
+                # Re-lança a exception para o retry capturar e executar novamente...
+                # Em casos aonde o objeto response é existente, porém deu erro na resposta do gov side
+                raise StatusCodeError("Erro para: "+ url +f"de status code: {resp.status_code}")
+        except:
+            
+            # Re-lança a exception para o retry capturar e executar novamente...
+            # Em casos aonde o objeto response é inexistente
+            
+            raise StatusCodeError("Erro para: "+ url +f"de status code: {resp.status_code}")
+        return resp 
     
     @staticmethod
     def run_dontDetailsPage_scraper(url_param: str):
         
-        scraper = cfscrape.create_scraper()
+        
         response = scraper.get(url_param)
 
         if response.status_code == 200:
@@ -112,7 +137,7 @@ class ScraperUtil:
         try:
             
             url_param = DOU_DETAIL_SINGLE_RECORD_URL + url_tile
-            response = await ScraperUtil.make_request_cloudflare_bypass_async(url_param)
+            response = await ScraperUtil.make_request_cloudflare_bypass_async_multithreading(url_param)
             
             print("Executando raspagem no: " + url_tile + "...")
     
@@ -124,14 +149,14 @@ class ScraperUtil:
             
             ScraperUtil.logger.error('make_request_to_dou_journal_moreDetail_and_scraping_async: Erro: ' + str(e))
 
-            return f"ERROR NA CHAMADA PARA: {url_tile}, {str(e)}"
+            print(f"ERROR NA CHAMADA PARA: {url_tile}, {str(e)}")    
 
     
     
     @staticmethod
     async def run_beautifulSoup_into_detailsPage_async(response):
         
-        site_html_str = BeautifulSoup(response, "html.parser")
+        site_html_str = BeautifulSoup(response.text, "html.parser")
 
             
         versao_certificada = site_html_str.find('a', {'id': 'versao-certificada'})
@@ -199,8 +224,7 @@ class ScraperUtil:
     def run_detail_single_dou_record_scraper(detailSingleDOUJournalWithUrlTitleFieldURLQueryString):
         
         url_param = DOU_DETAIL_SINGLE_RECORD_URL + detailSingleDOUJournalWithUrlTitleFieldURLQueryString
-        
-        scraper = cfscrape.create_scraper()
+    
         response = scraper.get(url_param)
 
         if response.status_code == 200:
@@ -356,7 +380,7 @@ class ScraperUtil:
                 
                 json_data = response.content.decode('utf-8')
                 
-                print("OCORREU ERROS NA REQUISIÇÃO DO DOU!, OBJETOS COM ERRO ORDENADOS PARA AS PRIMEIRAS POSIÇÕES")
+                print("OCORREU ERROS NA REQUISIÇÃO DO DOU!")
                 
                 return json_data
             
