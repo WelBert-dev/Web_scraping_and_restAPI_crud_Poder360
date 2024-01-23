@@ -46,24 +46,23 @@ class ScraperUtil:
                 
                 # Re-lança a exception para o retry capturar e executar novamente...
                 # Em casos aonde o objeto response é existente, porém deu erro na resposta do gov side
+                # Faz isso para que o retry capture e faça novas retentativas até conseguir 100% dos dados
                 raise StatusCodeError("Erro para: "+ url +f"de status code: {resp.status_code}")
         except:
             
             # Re-lança a exception para o retry capturar e executar novamente...
             # Em casos aonde o objeto response é inexistente
+            # Faz isso para que o retry capture e faça novas retentativas até conseguir 100% dos dados
             
             raise StatusCodeError("Erro para: "+ url +f"de status code: {resp.status_code}")
         
         return resp 
-
-        #print(f"Erro ao fazer a requisição para {url}: {e}")
            
-        
         
     
     @staticmethod
     def run_scraper_with_all_params(secaoURLQueryString_param : str, 
-                                    dataURLQueryString_param : str, detailDOUJournalFlag : bool):
+                                    dataURLQueryString_param : str, detailDOUJournalFlag : bool, balancerFlag : bool):
         
         # Varre todos os DOU da data mencionada no query string param
             
@@ -71,11 +70,20 @@ class ScraperUtil:
         
         dou_dontDetails_list_with_jsonArrayField = ScraperUtil.run_dontDetailsPage_scraper(url_param)
         
-        if detailDOUJournalFlag:
+        # Se for balancear entre os clones da API, faz a raspagem apenas na página dos não detalhados
+        # Para posteriormente receber no endpoint POST http://127.0.0.1:800x/trigger_web_scraping_dou_api/
+        # A listagem de urlTitle balanceada, ou seja, cada instância faz a mesma quantidade de requisições e 
+        # raspagens dos jornais detalhados...
+        if detailDOUJournalFlag and balancerFlag:
+            
+            return ScraperUtil.get_urlTitleField_from_dou_dontDetails_list_jsonArrayField(dou_dontDetails_list_with_jsonArrayField)
+        
+        elif detailDOUJournalFlag:
             
             # Detalhar compensa async, pois são várias requisições para serem realizadas ao mesmo tempo.
+            urls_title_list = ScraperUtil.get_urlTitleField_from_dou_dontDetails_list_jsonArrayField(dou_dontDetails_list_with_jsonArrayField)
             
-            return ScraperUtil.run_detailsPage_scraper_using_async(dou_dontDetails_list_with_jsonArrayField)
+            return ScraperUtil.run_detail_single_dou_record_scraper_using_event_loop(urls_title_list)
         
         return list(dou_dontDetails_list_with_jsonArrayField)
 
@@ -104,17 +112,17 @@ class ScraperUtil:
             return ({"error_in_dou_server_side":response.text, "status_code":response.status_code, "response_obj":response})
     
     
-       
+    
     @staticmethod
-    def run_detailsPage_scraper_using_async(dou_dontDetails_list_with_jsonArrayField):
-       
+    def get_urlTitleField_from_dou_dontDetails_list_jsonArrayField(dou_dontDetails_list_with_jsonArrayField):
+        
         urls_title_list = []
         for single_journal in dou_dontDetails_list_with_jsonArrayField:
             for record in single_journal:
                 if record["urlTitle"] is not None:
                      urls_title_list.append(record["urlTitle"])
-        
-        return ScraperUtil.run_detail_single_dou_record_scraper_using_event_loop(urls_title_list)
+
+        return urls_title_list
     
     
     
@@ -199,34 +207,6 @@ class ScraperUtil:
             ScraperUtil.logger.error('make_request_to_dou_journal_moreDetail_and_scraping_async: Erro: ' + str(e))
 
             print(f"ERROR NA CHAMADA PARA: {url_tile}, {str(e)}")    
-            
-            
-            # if str(e) == 'Cannot connect to host www.in.gov.br:443 ssl:default [Connection reset by peer]':
-                
-            # return {'ERROR NA CHAMADA PARA': url_tile, 'Exception:':str(e)}
-        
-    
-    
-    # @staticmethod
-    # async def make_request_to_dou_journal_moreDetail_and_scraping_async_again_when_error443(url_tile):
-    #     try:
-            
-    #         url_param = DOU_DETAIL_SINGLE_RECORD_URL + url_tile
-    #         response = await ScraperUtil.make_request_cloudflare_bypass_async(url_param)
-    
-    #         result_json = await ScraperUtil.run_beautifulSoup_into_detailsPage_async(response)
-        
-    #         return result_json   
-            
-    #     except Exception as e:
-            
-    #         ScraperUtil.logger.error('make_request_to_dou_journal_moreDetail_and_scraping_async: Erro: ' + str(e))
-
-    #         print(f"ERROR NA CHAMADA PARA: {url_tile}, {str(e)}")    
-            
-    #         if str(e) == 'Cannot connect to host www.in.gov.br:443 ssl:default [Connection reset by peer]':
-                
-    #         return {'ERROR NA CHAMADA PARA': url_tile, 'Exception:':str(e)}
         
 
 

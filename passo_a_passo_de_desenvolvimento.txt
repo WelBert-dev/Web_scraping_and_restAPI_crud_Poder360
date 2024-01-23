@@ -2134,3 +2134,47 @@ $ sudo rm -r ./data/
 $ docker stop $(sudo docker ps -a -q) ; sudo docker system prune -f ; sudo docker rm -vf $(sudo docker ps -aq) ; sudo docker rmi -f $(sudo docker images -aq)
 $ docker-compose up --build --force-recreate
 ```	
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+28o - ScraperAPI: Balançeando a carga igualmente entre as instâncias clones da API:
+
+- Parece que não obteve ganhos, com muitas requisições seguindas ocorrem mais erros e desta forma mais retentativas são necessárias para opter respostas, então o tempo ganho é perdido nessas retentativas.
+
+- Talvez se melhorar a lógica do retry, para aguardar um tempo, ou algo similar, pode contornar esse problema!
+
+
+- O código de antes se manteve, eu apenas adicionei mais uma flag:
+
+
+
+
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True&balancerFlag=True
+	
+	
+	
+	Tempo de CPU do usuário 	81.962 ms
+	Tempo de CPU do sistema 	7.605 ms
+	Tempo total de CPU 		89.567 ms
+	Tempo decorrido 		107.535 ms
+	Mudanças de contexto 		13 voluntário, 9 involuntário
+	
+
+
+- Fiz isso para testar mais facilmente, a versão anterior (sem balançear a carga igualmente entre todas instâncias clones da API: (Mas ainda utilizando elas, aonde cada instância é responsável por uma seção DOU.
+
+
+
+
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True
+
+
+
+
+	Tempo de CPU do usuário 	108.957 ms
+	Tempo de CPU do sistema 	2.403 ms
+	Tempo total de CPU 		111.360 ms
+	Tempo decorrido 		125.128 ms
+	Mudanças de contexto 		12 voluntário, 13 involuntário
+

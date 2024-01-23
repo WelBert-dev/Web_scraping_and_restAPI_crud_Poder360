@@ -10,7 +10,7 @@ class JournalJsonArrayOfDOUService:
         all_dous_records_normalized = []
         if len(dou_journals_jsonArrayField_dict) == 3: # Lista coontendo as 3 seções: DO1, DO2, e DO3
             
-            # Achata a lista em apenas uma, estilo "flatMap" dos fluxos streams no Java:
+            # Acahat a lista em apenas uma, estilo "flatMap" dos fluxos streams no Java:
             dou_journals_jsonArrayField_dict = [item for sublist in dou_journals_jsonArrayField_dict for inner_list in sublist for item in inner_list]
             
             for record in dou_journals_jsonArrayField_dict:
@@ -36,24 +36,12 @@ class DetailSingleJournalOfDOUService:
 
     @staticmethod
     def insert_into_distinct_journals_and_date_normalize(details_dou_journals_dict):
-        
-        print(details_dou_journals_dict)
-        print("\n\n\n")
-        print(len(details_dou_journals_dict))
-        print("\n\n\n")
             
         not_exists_records_list = []
         for record in details_dou_journals_dict:
         
             if isinstance(record, list): # Lista é para as 3 seções do dou.
                 for i in record:
-                    # print("\n\n\nVALOR DE I:")
-                    # print(i)
-                    # print("\n\n\n")
-                    # print("TYPE DE IIIIIIIIIII")
-                    # print(type(i))
-                    # print("\n\n\n")
-                    
                     if i['publicado_dou_data'] and i['versao_certificada']:
                         i['publicado_dou_data'] = datetime.strptime(i['publicado_dou_data'], "%d/%m/%Y").strftime("%Y-%m-%d")
                         DetailSingleJournalOfDOUService.append_record_if_not_exists(i, not_exists_records_list)
@@ -67,12 +55,6 @@ class DetailSingleJournalOfDOUService:
                 # Aproveita o mesmo looping para appender na lista se o objeto não existir no banco, 
                 # para depois inserir tudo em massa na mesma query.
                 DetailSingleJournalOfDOUService.append_record_if_not_exists(record, not_exists_records_list)
-        
-        print("\n\n\n")
-        print("LEN DA LISTA A INSERIR (not_exists_records_list, details): ", len(not_exists_records_list))
-        print("\n\n\n")
-        print("LEN DA LISTA ORIGINAL (details_dou_journals_dict, details): ", len(details_dou_journals_dict))
-        print("\n\n\n")
         
         
         # Utiliza a verificação CAMPO A CAMPO, pois apenas delegar para o ORM está inserindo duplicatas.

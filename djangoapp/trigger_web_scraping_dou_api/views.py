@@ -40,12 +40,19 @@ class ScraperViewSet(APIView):
 
         detailDOUJournalFlag = request.GET.get('detailDOUJournalFlag')
         
+        balancerFlag = request.GET.get('balancerFlag')
+        
+            
+        if balancerFlag:
+            balancerFlag = True
         
         if saveInDBFlag:
             saveInDBFlag = True
             
         if detailDOUJournalFlag:
             detailDOUJournalFlag = True
+            
+
 
         # Se não existem parâmetros
         # Lembrando que se trata dos parâmetros: secaoURLQueryString, dataURLQueryString e detailSingleDOUJournalWithUrlTitleFieldURLQueryString
@@ -55,8 +62,8 @@ class ScraperViewSet(APIView):
                                                             dataURLQueryString, 
                                                             detailSingleDOUJournalWithUrlTitleFieldURLQueryString):
             
-            return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag)
-            
+            return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+             
 
         # Se ?section= foi passado no URL query string param
         elif URLQueryStringParameterValidator.is_secaoURLQueryString_unic(secaoURLQueryString, 
@@ -144,9 +151,6 @@ class ScraperViewSet(APIView):
                     return redirect(URL_MAIN_API_DJANGOAPP + 'db_dou_api/journaljsonarrayofdouviewset/')
 
         elif isinstance(response, dict):
-            
-            print("RESPONSEEEEEE dict")
-            print(response)
         
             if 'error_in_our_server_side' in response:
                 
@@ -180,16 +184,17 @@ class ScraperViewSet(APIView):
             
         return Response(response)
 
-
+    
     # Varre tudo da home do https://www.in.gov.br/leiturajornal
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/ 
     
     # Varre tudo da home do https://www.in.gov.br/leiturajornal e detalha todos dou do dia
     # - GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True
     def handle_URL_empty_params(self, saveInDBFlag : bool, 
-                                detailDOUJournalFlag : bool):
+                                detailDOUJournalFlag : bool,
+                                balancerFlag : bool):
         
-        response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag)
+        response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
         
         return self.handle_response_and_when_saveInDBFlag_is_true_save(response, saveInDBFlag, detailDOUJournalFlag)
 

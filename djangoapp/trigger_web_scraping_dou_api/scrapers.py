@@ -2,8 +2,6 @@ import json
 import cfscrape
 from bs4 import BeautifulSoup
 
-from trigger_web_scraping_dou_api.serializers import DetailSingleJournalOfDOUSerializer
-
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 import os
@@ -16,6 +14,8 @@ from tenacity import retry
 
 import logging
 
+from itertools import chain
+
 from trigger_web_scraping_dou_api.utils import DateUtil
 
 log_path = os.path.join(os.environ.get('LOG_DIR', '.'), 'scrapers_main_api_log.txt')
@@ -23,8 +23,8 @@ log_path = os.path.join(os.environ.get('LOG_DIR', '.'), 'scrapers_main_api_log.t
 logging.basicConfig(filename=log_path, level=logging.ERROR,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-
 DOU_BASE_URL=os.getenv('DOU_BASE_URL', 'https://www.in.gov.br/leiturajornal') 
+
 DOU_DETAIL_SINGLE_RECORD_URL=os.getenv('DOU_DETAIL_SINGLE_RECORD_URL', 'https://www.in.gov.br/en/web/dou/-/') 
 
 URL_API1_CLONE_INSTANCE_DJANGOAPPCLONEONE=os.getenv('URL_API1_CLONE_INSTANCE_DJANGOAPPCLONEONE', 
@@ -283,7 +283,8 @@ class ScraperUtil:
         # return all_dous_with_current_date_dontDetails
         
         return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(dataURLQueryString_param, 
-                                                                                        detailDOUJournalFlag)
+                                                                                        detailDOUJournalFlag,
+                                                                                        balancerFlag=False)
     
     
     
@@ -311,22 +312,71 @@ class ScraperUtil:
     
     
     @staticmethod        
-    def run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag : bool):
+    def run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag : bool, balancerFlag : bool):
         
         date_now_db_and_brazilian_format = DateUtil.get_current_date_db_and_brazilian_format()
         
         return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format, 
-                                                                                        detailDOUJournalFlag)
+                                                                                        detailDOUJournalFlag,
+                                                                                        balancerFlag)
     
     
     
     @staticmethod        
     def run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(dataURLQueryString_param : str, 
-                                                                     detailDOUJournalFlag : bool):
+                                                                     detailDOUJournalFlag : bool, 
+                                                                     balancerFlag : bool):
         
-        all_dous_response = []
+        # 127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True&balancerFlag=True
+            
+        # balancer e details true, executa raspagem dos dous não detalhados utilizando as 3 instâncias
+        # depois, recebe a listagem e divide igualmente elas dinâmicamente para cada instância clone.
+        # Envia no endpoint post com json contendo a lista de urlTitle para os detalhamentos de maneira distribuida
         
-        if not detailDOUJournalFlag: 
+        # Com a flag `balancerFlag=True`, a instância vai executar a raspagem dos não detalhados,
+        # e depois processar para retornar apenas a lista de urlTitle já pronta para 
+            
+        if detailDOUJournalFlag and balancerFlag:
+
+            urls_clones_instances = [
+                URL_API1_CLONE_INSTANCE_DJANGOAPPCLONEONE + 
+                "trigger_web_scraping_dou_api/?secao=do1&data=" + dataURLQueryString_param +
+                "&detailDOUJournalFlag=True" + "&balancerFlag=True",
+                
+                URL_API2_CLONE_INSTANCE_DJANGOAPPCLONETWO + 
+                "trigger_web_scraping_dou_api/?secao=do2&data=" + dataURLQueryString_param + 
+                "&detailDOUJournalFlag=True" + "&balancerFlag=True",
+                
+                URL_API3_CLONE_INSTANCE_DJANGOAPPCLONETHREE + 
+                "trigger_web_scraping_dou_api/?secao=do3&data=" + dataURLQueryString_param + 
+                "&detailDOUJournalFlag=True" + "&balancerFlag=True",
+            ]      
+        
+            all_urlTitleList_response = ScraperUtil.run_make_get_request_for_others_clone_api_using_thread_pool(urls_clones_instances)
+                
+            # FAZ ACHATAMNETO DAS 3 listas, e transforma em apenas 1 com todsos os 3 dous:
+            # Estilo `flatmap` dos fluxos Streams em Java.
+                
+            all_urlTitleList_response_flatList = list(chain.from_iterable(all_urlTitleList_response))
+            
+            # Particiona igualmente a quantidade de urlTitle para cada API realizar o detalhamento
+            sublists = ScraperUtil.partition_list(all_urlTitleList_response_flatList, 3)
+            
+            # Manda um post com a lista de urlTitle dividida corretamente entre as 3 instâncias
+            urls_clones_instances = [
+                URL_API1_CLONE_INSTANCE_DJANGOAPPCLONEONE + 
+                "trigger_web_scraping_dou_api/",
+                
+                URL_API2_CLONE_INSTANCE_DJANGOAPPCLONETWO + 
+                "trigger_web_scraping_dou_api/",
+                
+                URL_API3_CLONE_INSTANCE_DJANGOAPPCLONETHREE + 
+                "trigger_web_scraping_dou_api/",
+            ] 
+            return ScraperUtil.run_make_post_request_for_others_clone_api_using_thread_pool(urls_clones_instances, sublists)
+            
+        # 127.0.0.1:8000/trigger_web_scraping_dou_api/?saveInDBFlag=True
+        elif not detailDOUJournalFlag: 
             
             urls_clones_instances = [
                 URL_API1_CLONE_INSTANCE_DJANGOAPPCLONEONE + 
@@ -337,9 +387,12 @@ class ScraperUtil:
                 
                 URL_API3_CLONE_INSTANCE_DJANGOAPPCLONETHREE + 
                 "trigger_web_scraping_dou_api/?secao=do3&data=" + dataURLQueryString_param,
-            ]    
+            ]  
             
-        else:   
+            return ScraperUtil.run_make_get_request_for_others_clone_api_using_thread_pool(urls_clones_instances)
+        
+        # 127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True
+        elif not balancerFlag:
             
             urls_clones_instances = [
                 URL_API1_CLONE_INSTANCE_DJANGOAPPCLONEONE + 
@@ -353,19 +406,13 @@ class ScraperUtil:
                 URL_API3_CLONE_INSTANCE_DJANGOAPPCLONETHREE + 
                 "trigger_web_scraping_dou_api/?secao=do3&data=" + dataURLQueryString_param + 
                 "&detailDOUJournalFlag=True",
-            ]      
-            
-        with ThreadPoolExecutor() as executor:
-        
-            all_dous_response = list(executor.map(ScraperUtil.make_request_for_others_clone_api, 
-                                                                                    urls_clones_instances))
-
-        return all_dous_response
+            ]  
+            return ScraperUtil.run_make_get_request_for_others_clone_api_using_thread_pool(urls_clones_instances)
         
     
 
     @staticmethod
-    def make_request_for_others_clone_api(url):
+    def make_get_request_for_others_clone_api_task(url):
         
         response = requests.get(url)
 
@@ -389,12 +436,88 @@ class ScraperUtil:
         except requests.exceptions.JSONDecodeError as e:
             
                 json_string_response = json.dumps({"text": response})
-                
-                
-                
+            
                 return json_string_response
             
-            # Retorna uma lista da API, então co
+            
+            
+    @staticmethod
+    def make_post_request_for_others_clone_api_task(url_api, data):
+        
+         # Crie o corpo da solicitação como um dicionário
+        corpo_json = {"urlTitleList": data}
+
+        # Converta o dicionário para uma string JSON
+        dados_json = json.dumps(corpo_json)
+
+        # Defina os cabeçalhos necessários, por exemplo, 'Content-Type'
+        cabecalhos = {"Content-Type": "application/json"}
+               
+        response = requests.post(url_api, data=dados_json, headers=cabecalhos)
+
+        try:
+            
+            if response.status_code == 200:
+            
+                return response.json()
+            
+            # 500 == Error no servidor do DOU
+            elif response.status_code == 500:
+                
+                json_data = response.content.decode('utf-8')
+                
+                print("OCORREU ERROS NA REQUISIÇÃO DO DOU!")
+                
+                return json_data
+            
+                # raise Exception(f"Erro na requisição para {url}. Status code: {response.status_code}")
+                
+        except requests.exceptions.JSONDecodeError as e:
+            
+                json_string_response = json.dumps({"text": response})
+                
+                return json_string_response
+    
+    
+    
+    @staticmethod
+    def run_make_get_request_for_others_clone_api_using_thread_pool(urls_clones_instances):
+        
+        with ThreadPoolExecutor() as executor:
+            all_urlTitleList_response = list(
+                executor.map(
+                    ScraperUtil.make_get_request_for_others_clone_api_task,
+                    urls_clones_instances
+                )
+            )
+
+        return all_urlTitleList_response
+    
+    
+    
+    @staticmethod
+    def run_make_post_request_for_others_clone_api_using_thread_pool(urls_clones_instances, listas_particionadas):
+        
+        with ThreadPoolExecutor() as executor:
+            all_urlTitleList_response = list(
+                executor.map(
+                    ScraperUtil.make_post_request_for_others_clone_api_task,
+                    urls_clones_instances,
+                    listas_particionadas
+                )
+            )
+
+        return all_urlTitleList_response
+
+
+    
+    @staticmethod
+    def partition_list(list, num_parts):
+        
+        part_size = -(-len(list) // num_parts)  # Arredondamento para cima
+        partition_list = [list[i * part_size:(i + 1) * part_size] for i in range(num_parts)]
+        return partition_list
+    
     
     
     @staticmethod

@@ -4979,3 +4979,780 @@ TypeError: Object of type Response is not JSON serializable
 2024-01-22 15:54:54,617 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
 2024-01-22 16:04:54,489 - django.request - WARNING - Not Found: /favicon.ico
 2024-01-22 16:21:14,073 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 17:27:58,867 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 17:28:16,431 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 58, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 192, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 318, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3() missing 1 required positional argument: 'balancerFlag'
+2024-01-22 17:29:10,307 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 17:51:47,857 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 17:51:59,523 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 17:52:16,256 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 17:52:57,866 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 17:53:27,221 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:24:02,068 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 384, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    ScraperUtil.run_make_post_request_for_others_clone_api_using_event_loop(urls_clones_instances, listas_particionadas)
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 523, in run_make_post_request_for_others_clone_api_using_event_loop
+    all_dous_with_current_date_moreDetails = loop.run_until_complete(
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 538, in run_make_post_request_for_others_clone_api_async_batch
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 19:24:02,476 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 19:25:35,263 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:25:38,794 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 386, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    ScraperUtil.run_make_post_request_for_others_clone_api_using_event_loop(urls_clones_instances, listas_particionadas)
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 525, in run_make_post_request_for_others_clone_api_using_event_loop
+    all_dous_with_current_date_moreDetails = loop.run_until_complete(
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 540, in run_make_post_request_for_others_clone_api_async_batch
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 19:25:38,954 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 19:29:01,648 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:29:13,896 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 19:30:19,131 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 386, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    ScraperUtil.run_make_post_request_for_others_clone_api_using_event_loop(urls_clones_instances, listas_particionadas)
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 525, in run_make_post_request_for_others_clone_api_using_event_loop
+    all_dous_with_current_date_moreDetails = loop.run_until_complete(
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 540, in run_make_post_request_for_others_clone_api_async_batch
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 19:37:55,346 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/urllib3/connection.py", line 174, in _new_conn
+    conn = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 96, in create_connection
+    raise err
+  File "/venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 86, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 699, in urlopen
+    httplib_response = self._make_request(
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 394, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/venv/lib/python3.11/site-packages/urllib3/connection.py", line 239, in request
+    super(HTTPConnection, self).request(method, url, body=body, headers=headers)
+  File "/usr/local/lib/python3.11/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/local/lib/python3.11/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/local/lib/python3.11/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/local/lib/python3.11/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/local/lib/python3.11/http/client.py", line 976, in send
+    self.connect()
+  File "/venv/lib/python3.11/site-packages/urllib3/connection.py", line 205, in connect
+    conn = self._new_conn()
+           ^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/urllib3/connection.py", line 186, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x7fb1c8845210>: Failed to establish a new connection: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 755, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 574, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='djangoappclonetwo', port=8002): Max retries exceeded with url: /trigger_web_scraping_dou_api/?secao=do2&data=22-01-2024&detailDOUJournalFlag=True&balancerFlag=True (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fb1c8845210>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 362, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    all_urlTitleList_response = list(executor.map(ScraperUtil.make_request_for_others_clone_api,
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/local/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 444, in make_request_for_others_clone_api
+    response = requests.get(url)
+               ^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/requests/adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='djangoappclonetwo', port=8002): Max retries exceeded with url: /trigger_web_scraping_dou_api/?secao=do2&data=22-01-2024&detailDOUJournalFlag=True&balancerFlag=True (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fb1c8845210>: Failed to establish a new connection: [Errno 111] Connection refused'))
+2024-01-22 19:38:56,092 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 386, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    ScraperUtil.run_make_post_request_for_others_clone_api_using_event_loop(urls_clones_instances, listas_particionadas)
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 525, in run_make_post_request_for_others_clone_api_using_event_loop
+    all_dous_with_current_date_moreDetails = loop.run_until_complete(
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 540, in run_make_post_request_for_others_clone_api_async_batch
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 19:40:05,640 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:40:11,062 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 391, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    ScraperUtil.run_make_post_request_for_others_clone_api_using_event_loop(urls_clones_instances, listas_particionadas)
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 530, in run_make_post_request_for_others_clone_api_using_event_loop
+    all_dous_with_current_date_moreDetails = loop.run_until_complete(
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 545, in run_make_post_request_for_others_clone_api_async_batch
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 19:42:34,995 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:42:42,932 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 394, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    ScraperUtil.run_make_post_request_for_others_clone_api_using_event_loop(urls_clones_instances, listas_particionadas)
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 533, in run_make_post_request_for_others_clone_api_using_event_loop
+    all_dous_with_current_date_moreDetails = loop.run_until_complete(
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 548, in run_make_post_request_for_others_clone_api_async_batch
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 19:44:04,516 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:44:13,871 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 394, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    ScraperUtil.run_make_post_request_for_others_clone_api_using_event_loop(urls_clones_instances, listas_particionadas)
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 533, in run_make_post_request_for_others_clone_api_using_event_loop
+    all_dous_with_current_date_moreDetails = loop.run_until_complete(
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 548, in run_make_post_request_for_others_clone_api_async_batch
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 19:44:13,999 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 19:44:58,627 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:45:07,362 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 19:46:20,871 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:46:49,037 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:46:58,162 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 390, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    print("LEN DA LISTA SUBSTRING posição 2", len(listas_particionadas[3]))
+                                                  ~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+2024-01-22 19:46:58,354 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 19:47:10,810 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:48:00,054 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:49:30,588 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:51:13,432 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:52:10,805 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:52:31,036 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 19:56:42,937 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:07:29,529 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 20:15:03,615 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:16:23,576 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:17:16,582 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 391, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    response_join = ScraperUtil.run_make_post_request_for_others_clone_api_using_thread_pool(all_urlTitleList_response_flatList, listas_particionadas)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 533, in run_make_post_request_for_others_clone_api_using_thread_pool
+    all_urlTitleList_response = list(
+                                ^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/local/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 547, in make_post_request_for_others_clone_api_task_per_instance
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 20:19:06,122 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:19:17,040 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 393, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    response_join = ScraperUtil.run_make_post_request_for_others_clone_api_using_thread_pool(all_urlTitleList_response_flatList, listas_particionadas)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 535, in run_make_post_request_for_others_clone_api_using_thread_pool
+    all_urlTitleList_response = list(
+                                ^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/local/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 549, in make_post_request_for_others_clone_api_task_per_instance
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 20:19:17,185 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 20:20:22,538 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:20:30,723 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 393, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    response_join = ScraperUtil.run_make_post_request_for_others_clone_api_using_thread_pool(all_urlTitleList_response_flatList, listas_particionadas)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 535, in run_make_post_request_for_others_clone_api_using_thread_pool
+    all_urlTitleList_response = list(
+                                ^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/local/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 553, in make_post_request_for_others_clone_api_task_per_instance
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 20:21:43,942 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:21:49,769 - django.request - ERROR - Internal Server Error: /trigger_web_scraping_dou_api/
+Traceback (most recent call last):
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 65, in get
+    return self.handle_URL_empty_params(saveInDBFlag, detailDOUJournalFlag, balancerFlag)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/views.py", line 200, in handle_URL_empty_params
+    response = ScraperUtil.run_scraper_with_empty_params_using_clone_instances(detailDOUJournalFlag, balancerFlag)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 321, in run_scraper_with_empty_params_using_clone_instances
+    return ScraperUtil.run_scraper_using_clone_instances_when_secao_do1_do2_and_do3(date_now_db_and_brazilian_format,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 393, in run_scraper_using_clone_instances_when_secao_do1_do2_and_do3
+    response_join = ScraperUtil.run_make_post_request_for_others_clone_api_using_thread_pool(urls_clones_instances, listas_particionadas)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 535, in run_make_post_request_for_others_clone_api_using_thread_pool
+    all_urlTitleList_response = list(
+                                ^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/local/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/djangoapp/trigger_web_scraping_dou_api/scrapers.py", line 553, in make_post_request_for_others_clone_api_task_per_instance
+    raise ValueError("As listas devem ter o mesmo comprimento")
+ValueError: As listas devem ter o mesmo comprimento
+2024-01-22 20:26:02,849 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:26:12,343 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 20:28:07,736 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:28:16,360 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:31:58,565 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:34:39,576 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 20:48:52,014 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 20:50:56,584 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 21:02:47,467 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/services.py changed, reloading.
+2024-01-22 21:03:17,185 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/views.py changed, reloading.
+2024-01-22 21:12:48,534 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 21:17:04,125 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 22:01:52,547 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 22:27:42,981 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 22:29:48,196 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 22:47:13,018 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 22:51:18,009 - django.request - WARNING - Not Found: /favicon.ico
+2024-01-22 22:56:13,270 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/scrapers.py changed, reloading.
+2024-01-22 22:58:24,527 - django.utils.autoreload - INFO - /djangoapp/trigger_web_scraping_dou_api/services.py changed, reloading.
