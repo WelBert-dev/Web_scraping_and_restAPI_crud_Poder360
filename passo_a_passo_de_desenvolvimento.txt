@@ -2177,4 +2177,112 @@ $ docker-compose up --build --force-recreate
 	Tempo total de CPU 		111.360 ms
 	Tempo decorrido 		125.128 ms
 	Mudanças de contexto 		12 voluntário, 13 involuntário
+	
+	
+-------------------------------------------------------------------------------------------------------------------------------
 
+29o - ScraperAPI: Super Otimização na performance com `curl_cffi` fase 01: Substituí o `cfscrape` pelo `curl_cffi` que possuí funções async por natureza e também realiza bypass nas restrições do cloudflare. 
+
+- ALÉM de `curl_cffi` possuir funções async, ele é implementado em C, logo, a performance é gritante.
+
+- Por conta da maneira que devemos implementar, não funcionou bem com o `retry` do tenacity, mas fiz uma solução de retentativas adicionando na lista de `urls_fails` para urls que status_code != 200.
+
+- Também por conta do ponto acima, não é possivel realizar prints durante as requisições, apenas quando todas finaliza.
+
+- Primeiro realizamos as requisições em massa, e depois que tudo esta ok, realizamos o scraping na lista de sites carregados (htmls adicionados na lista).
+
+- Apesar de ser bem rápido, ocorrem bastante problemas nas restrições do cloudflare para a seção do3, então o código passa bastante tempo na lógica de retentativa mencionada anteriormente.
+
+- Estou em busca de uma solução mais viável para esse bypass, porém mesmo assim já está mais rápido que a solução anterior utilizando o `cfscrape` com uma camada async adicionada com `asyncio.to_thread(scraper.get, url, timeout=10)`.
+
+- O `curl_cffi` tem forte acoplamentos com o `curl_impersonate` e ele não estava disponivel no repositório do alpine, então tive que utilizar o mesmo Dockerfile do projeto no github do `curl_impersonate`, e realizar pequenas adaptações para o nosso projeto django: https://github.com/lwthiker/curl-impersonate/tree/main/chrome
+
+		
+		
+	- GET http://127.0.0.1:8000/trigger_web_scraping_dou_api/?detailDOUJournalFlag=True&saveInDBFlag=True
+	
+	- Data: 23/01/2024
+
+
+
+		METRICAS ANTES (Utilizando `cfscrape` com uma camada async adicionada nele com `resp = await asyncio.to_thread(scraper.get, url, timeout=10)`):
+		
+		
+		
+			Tempo de CPU do usuário 	121.322 ms
+			Tempo de CPU do sistema 	48.392 ms
+			Tempo total de CPU 		169.714 ms
+			Tempo decorrido 		261.900 ms
+			Mudanças de contexto 		24 voluntário, 8 involuntário
+		
+		
+		
+		METRICAS DEPOIS (COM O `curl_cffi` feito com C, async por natureza e com bypass do cloudflare):
+		
+		
+		
+			Tempo de CPU do usuário 	53.927 ms
+			Tempo de CPU do sistema 	17.324 ms
+			Tempo total de CPU 		71.251 ms
+			Tempo decorrido 		88.731 ms
+			Mudanças de contexto 		16 voluntário, 20 involuntário
+			
+
+
+## LEMBRE-SE DE RE-BUILDAR O DOCKER E REINICIAR TUDO PARA ASSUMIR A NOVA IMAGEM:
+		
+		
+		
+	```bash
+	$ cd ./web
+	$ sudo rm -r ./data/
+	$ docker stop $(sudo docker ps -a -q) ; sudo docker system prune -f ; sudo docker rm -vf $(sudo docker ps -aq) ; sudo docker rmi -f $(sudo docker images -aq)
+	$ docker-compose up --build --force-recreate
+	```		
+
+
+
+## ATENÇÃO IMPORTANTE: Caso ocorra o seguinte erro na hora de buildar a imagem nova do Docker:
+
+
+
+	Err:19 http://deb.debian.org/debian bookworm/main amd64 python3.11 amd64 3.11.2-6
+	  Could not resolve 'deb.debian.org'
+	Err:20 http://deb.debian.org/debian bookworm/main amd64 libpython3-stdlib amd64 3.11.2-1+b1
+	  Could not resolve 'deb.debian.org'
+	Err:21 http://deb.debian.org/debian bookworm/main amd64 python3 amd64 3.11.2-1+b1
+	  Could not resolve 'deb.debian.org'
+	Err:22 http://deb.debian.org/debian bookworm/main amd64 krb5-locales all 1.20.1-2+deb12u1
+	  Could not resolve 'deb.debian.org'
+	Err:23 http://deb.debian.org/debian bookworm/main amd64 libgpm2 amd64 1.20.7-10+b1
+	  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/p/python3.11/libpython3.11-minimal_3.11.2-6_amd64.deb  Temporary failure resolving 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/e/expat/libexpat1_2.5.0-1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/p/python3.11/python3.11-minimal_3.11.2-6_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/p/python3-defaults/python3-minimal_3.11.2-1%2bb1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/m/media-types/media-types_10.0.0_all.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/n/ncurses/libncursesw6_6.4-4_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/k/krb5/libkrb5support0_1.20.1-2%2bdeb12u1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/k/krb5/libk5crypto3_1.20.1-2%2bdeb12u1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/k/keyutils/libkeyutils1_1.6.3-2_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/k/krb5/libkrb5-3_1.20.1-2%2bdeb12u1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/k/krb5/libgssapi-krb5-2_1.20.1-2%2bdeb12u1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/libt/libtirpc/libtirpc-common_1.3.3%2bds-1_all.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/libt/libtirpc/libtirpc3_1.3.3%2bds-1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/libn/libnsl/libnsl2_1.3.0-2_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/r/readline/readline-common_8.2-1.3_all.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/r/readline/libreadline8_8.2-1.3_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/s/sqlite3/libsqlite3-0_3.40.1-2_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/p/python3.11/libpython3.11-stdlib_3.11.2-6_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/p/python3.11/python3.11_3.11.2-6_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/p/python3-defaults/libpython3-stdlib_3.11.2-1%2bb1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/p/python3-defaults/python3_3.11.2-1%2bb1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/k/krb5/krb5-locales_1.20.1-2%2bdeb12u1_all.deb  Could not resolve 'deb.debian.org'
+	E: Failed to fetch http://deb.debian.org/debian/pool/main/g/gpm/libgpm2_1.20.7-10%2bb1_amd64.deb  Could not resolve 'deb.debian.org'
+	E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?
+	The command '/bin/sh -c apt-get update && apt-get install -y ca-certificates &&     apt-get install -y python3 && apt-get install -y python3.11-venv && apt-get install -y ncat     && rm -rf /var/lib/apt/lists/*' returned a non-zero code: 100
+	ERROR: Service 'djangoappclonethree' failed to build : Build failed
+
+
+
+## A SOLUÇÃO É BUILDAR NOVAMENTE COM: `docker-compose up --build`

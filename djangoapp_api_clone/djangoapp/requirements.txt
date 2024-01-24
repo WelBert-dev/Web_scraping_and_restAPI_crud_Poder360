@@ -9,3 +9,7 @@ cfscrape
 django-debug-toolbar
 
 tenacity
+
+cffi
+
+curl_cffi

@@ -97,7 +97,7 @@ class ScraperUtil:
 
 
     @staticmethod
-    def run_detailsPage_scraper_using_async(dou_dontDetails_list_with_jsonArrayField):
+    def get_urlTitleField_from_dou_dontDetails_list_jsonArrayField(dou_dontDetails_list_with_jsonArrayField):
        
         urls_title_list = []
         for single_journal in dou_dontDetails_list_with_jsonArrayField:
@@ -105,7 +105,7 @@ class ScraperUtil:
                 if record["urlTitle"] is not None:
                      urls_title_list.append(record["urlTitle"])
         
-        return ScraperUtil.run_detail_single_dou_record_scraper_using_event_loop(urls_title_list)
+        return urls_title_list
     
     
     
@@ -258,7 +258,9 @@ class ScraperUtil:
         
         if detailDOUJournalFlag:
             
-            return ScraperUtil.run_detailsPage_scraper_using_async(dou_dontDetails_list_with_jsonArrayField)
+            urls_title_list = ScraperUtil.get_urlTitleField_from_dou_dontDetails_list_jsonArrayField(dou_dontDetails_list_with_jsonArrayField)
+
+            return ScraperUtil.run_detail_single_dou_record_scraper_using_event_loop(urls_title_list)
         
         return dou_dontDetails_list_with_jsonArrayField
     
@@ -305,7 +307,9 @@ class ScraperUtil:
             
             # Detalhar compensa async, pois são várias requisições para serem realizadas ao mesmo tempo.
             
-            return ScraperUtil.run_detailsPage_scraper_using_async(dou_dontDetails_list_with_jsonArrayField)
+            urls_title_list = ScraperUtil.get_urlTitleField_from_dou_dontDetails_list_jsonArrayField(dou_dontDetails_list_with_jsonArrayField)
+
+            return ScraperUtil.run_detail_single_dou_record_scraper_using_event_loop(urls_title_list)
         
         return dou_dontDetails_list_with_jsonArrayField
     
